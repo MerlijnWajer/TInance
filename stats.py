@@ -4,8 +4,6 @@ import pylab
 from sql import *
 
 """
-TODO:
-    * Breakdown of people late on payments per month
 DONE:
     * Breakdown of sum of money per month
     * Breakdown of new members per month
