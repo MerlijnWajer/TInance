@@ -55,7 +55,8 @@ mail:      m
 join-date: j
 paid:      p
 """)
-parser.add_argument('-r', '--restrict', default=None)
+parser.add_argument('-r', '--restrict', default=None,
+        help='Possible options: overdue,ontime,all')
 
 parser.add_argument('-a', '--add', action='store_true', default=False)
 
@@ -83,13 +84,18 @@ if args.search:
     r = q.all()
     for m in r:
         if args.restrict:
+            if args.restrict not in ('overdue', 'ontime', 'all'):
+                print 'Invalid restrict!'
+                parser.print_help()
+                sys.exit(1)
+
             t = time.localtime()
             due = datetime.date(t.tm_year, t.tm_mon, 1)
             if args.restrict == 'overdue':
                 cmpfunc = lambda d1, d2: d1 < d2 # overdue
             elif args.restrict == 'ontime':
                 cmpfunc = lambda d1, d2: d1 >= d2 # on time
-            else:
+            elif args.restrict == 'all':
                 cmpfunc = lambda d1, d2: True #all
 
             if cmpfunc(m.paid_until(), due):
