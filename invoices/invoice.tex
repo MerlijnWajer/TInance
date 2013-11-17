@@ -3,6 +3,7 @@
 %----------------------------------------------------------------------------------------
 
 \documentclass{invoice} % Use the custom invoice class (invoice.cls)
+\usepackage{graphicx}
 
 \def \tab {\hspace*{3ex}} % Define \tab to create some horizontal white space
 
@@ -16,6 +17,14 @@
 \bigskip\break % Whitespace
 \hrule % Horizontal line
 
+\vspace{-8em}
+\includegraphics[scale=0.05]{nyan.png}
+\hspace{23em}
+\includegraphics[scale=0.05]{nyan.png}
+\hspace{-23em}
+\vspace{8em}
+
+% Constants
 Louwesweg 1 \hfill Phone number 0123 \\
 Amsterdam, Noord Holland\hfill john@smith.com \\
 KvK Number \hfill 12345 \\
@@ -24,32 +33,18 @@ Bank Account \hfill 31415 \\
 Invoice Number \hfill 0b00010
 \\ \\
 {\bf Invoice To:} \\
-\tab James Smith \\ % Invoice recipient
-\tab Generic Corporation \\ % Recipient's company
+% Variables
+\tab Merlijn Wajer \\ % Invoice recipient
+\tab Het Grote Bos \\ % Recipient's company
 
 {\bf Date:} \\
-\tab \today \\ % Invoice date
-
-%----------------------------------------------------------------------------------------
-%	TABLE OF EXPENSES
-%----------------------------------------------------------------------------------------
+\tab \today \\
 
 \begin{invoiceTable}
 
 \feetype{Membership} % Fee category description
 
-\monthrow{October 3, 2012}{1}{20} % Each separate billing day includes the date, the number of months and the monthly rate
-
-%------------------------------------------------
-
-%\feetype{One time payment} % Fee category description
-%
-%\monthrow{October 10, 2012}{2}{80}
-%\monthrow{October 11, 2012}{1}{80}
-
-\subtotal % Prints a subtotal, can be used multiple times
-
-%------------------------------------------------
+\monthrow{October 2012}{1}{20} % Each separate billing day includes the date, the number of months and the monthly rate
 
 \end{invoiceTable}
 

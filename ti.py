@@ -40,6 +40,7 @@ Member:
 parser.add_argument('-n', '--nick', type=unicode)
 parser.add_argument('-N', '--name', type=unicode)
 parser.add_argument('-e', '--email', type=unicode)
+parser.add_argument('-A', '--active-only', action='store_true', default=False)
 parser.add_argument('-d', '--date', type=unicode,
     help='Either a valid format string or "now"')
 parser.add_argument('--dateformat', type=unicode,
@@ -80,6 +81,9 @@ if args.search:
         q = q.filter(f(Member.name, args.name))
     if args.email:
         q = q.filter(f(Member.email, args.email))
+
+    if args.active_only:
+        q = q.filter(Member.active == True)
 
     r = q.all()
     for m in r:

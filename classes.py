@@ -14,8 +14,6 @@ md = lambda p: 0 if p.months == 0 else p.amount / p.months
 class Member(Base):
     __tablename__ = 'membership_member'
 
-    # Why the fuck all the nullable?
-
     id = Column(Integer, nullable=False, primary_key=True)
     nick = Column(Unicode(200), nullable=False)
     member_date = Column(Date, nullable=False, default=func.now())
