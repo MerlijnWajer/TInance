@@ -58,6 +58,7 @@ class Member(Base):
         mail:      %m
         join-date: %j
         paid:      %p
+        keyid:     %k
         """
         m = {
             '%i' : str(self.id),
@@ -66,6 +67,7 @@ class Member(Base):
             '%m' : self.email,
             '%j' : str(self.member_date),
             '%p' : str(self.paid_until()),
+            '%k' : str(self.fobid),
         }
 
         for pat, repl in m.iteritems():

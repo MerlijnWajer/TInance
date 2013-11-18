@@ -55,6 +55,7 @@ name:      N
 mail:      m
 join-date: j
 paid:      p
+keyid:     k
 """)
 parser.add_argument('-r', '--restrict', default=None,
         help='Possible options: overdue,ontime,all')
@@ -103,11 +104,11 @@ if args.search:
                 cmpfunc = lambda d1, d2: True #all
 
             if cmpfunc(m.paid_until(), due):
-                print m.format(args.format)
+                print m.format(args.format).encode('utf-8')
 
 
         else:
-            print m.format(args.format)
+            print m.format(args.format).encode('utf-8')
 
 elif args.add:
     add_args = ['nick', 'name', 'email', 'date']
