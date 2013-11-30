@@ -46,6 +46,7 @@ parser.add_argument('-d', '--date', type=unicode,
 parser.add_argument('--dateformat', type=unicode,
     default='%Y-%m-%d')
 
+parser.add_argument('-H', '--human', action='store_true', default=False)
 parser.add_argument('-s', '--search', action='store_true', default=False)
 parser.add_argument('-f', '--format', type=str, default='%n %j %p',
     help="""Add percentage in front of the type. Allowed types:
@@ -104,11 +105,11 @@ if args.search:
                 cmpfunc = lambda d1, d2: True #all
 
             if cmpfunc(m.paid_until(), due):
-                print m.format(args.format).encode('utf-8')
+                print m.format(args.format, human_read=args.human).encode('utf-8')
 
 
         else:
-            print m.format(args.format).encode('utf-8')
+            print m.format(args.format, human_read=args.human).encode('utf-8')
 
 elif args.add:
     add_args = ['nick', 'name', 'email', 'date']

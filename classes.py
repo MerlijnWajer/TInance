@@ -50,7 +50,7 @@ class Member(Base):
         s = '<Member (%s, %s, %s)>' % (self.name, self.member_date, self.paid_until())
 	return s.encode('utf-8')
 
-    def format(self, f):
+    def format(self, f, human_read=False):
         """
         id:        %i
         nick:      %n
@@ -65,8 +65,8 @@ class Member(Base):
             '%n' : self.nick,
             '%N' : self.name,
             '%m' : self.email,
-            '%j' : str(self.member_date),
-            '%p' : str(self.paid_until()),
+            '%j' : str(self.member_date.strftime('%A %e, %B') if human_read else self.member_date),
+            '%p' : str(self.paid_until().strftime('%A %e, %B') if human_read else self.paid_until()),
             '%k' : str(self.fobid),
         }
 
