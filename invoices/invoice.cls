@@ -45,8 +45,12 @@
 }
 
 % Counters for totaling up months and dollars
-\newcounter{months} \newcounter{submonths} \newcounter{cost} \newcounter{subcost}
-\setcounter{months}{0} \setcounter{submonths}{0} \setcounter{cost}{0} \setcounter{subcost}{0}
+\newcounter{months} \newcounter{cost}
+\newcounter{taxcost}
+\newcounter{tax}
+\setcounter{months}{0} \setcounter{cost}{0}
+\setcounter{taxcost}{0}
+\setcounter{tax}{0}
 
 % Formats inputed number with 2 digits after the decimal place
 \newcommand*{\formatNumber}[1]{\FPround{\cost}{#1}{2}\cost} %
@@ -59,40 +63,22 @@
     % Create a new row from title, unit quantity, unit rate, and unit name
     \newcommand*{\unitrow}[4]{%
          \addtocounter{cost}{1000 * \real{##2} * \real{##3}}%
-         \addtocounter{subcost}{1000 * \real{##2} * \real{##3}}%
+         \addtocounter{taxcost}{1000 * \real{##2} * \real{##3} * \real{0.826027}}%
+         \addtocounter{tax}{1000 * \real{##2} * \real{##3} * \real{0.1735537}}%
          ##1 & \formatNumber{##2} ##4 & \euro{}\formatNumber{##3} & \euro{}\FPmul{\cost}{##2}{##3}\formatNumber{\cost}%
          \\
     }
     % Create a new row from title and expense amount
     \newcommand*{\feerow}[2]{%
          \addtocounter{cost}{1000 * \real{##2}}%
-         \addtocounter{subcost}{1000 * \real{##2}}%
          ##1 & & \euro{}\formatNumber{##2} & \euro{}\FPmul{\cost}{##2}{1}\formatNumber{\cost}%
          \\
     }
 
-    \newcommand{\subtotalNoStar}{
-        {\bf Subtotal} & {\bf \total{submonths} month} &  & {\bf \euro{}\total{subcost}}
-        \setcounter{subcost}{0}
-        \setcounter{submonths}{0}
-        \\*[1.5ex]
-    }
-    \newcommand{\subtotalStar}{
-        {\bf Subtotal} & & & {\bf \euro{}\total{subcost}}
-        \setcounter{subcost}{0}
-        \\*[1.5ex]
-    }
-    \newcommand{\subtotal}{
-         \hline
-         \@ifstar
-         \subtotalStar%
-         \subtotalNoStar%
-    }
 
     % Create a new row from date and months worked (use stored fee type and monthly rate)
     \newcommand*{\monthrow}[3]{%
         \addtocounter{months}{1000 * \real{##2}}%
-        \addtocounter{submonths}{1000 * \real{##2}}%
         \unitrow{##1}{##2}{##3}{month}%
     }
     \renewcommand{\tabcolsep}{0.8ex}
@@ -105,6 +91,8 @@
     \endhead
 }{
     \hline\hline\hline
+    {\bf Balance Excluding Tax} & & & {\bf \euro{}\total{taxcost}} \\
+    {\bf 21\% BTW} & & & {\bf \euro{}\total{tax}} \\
     {\bf Balance Due} & & & {\bf \euro{}\total{cost}} \\
     \end{longtable}
 }
