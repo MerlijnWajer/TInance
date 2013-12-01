@@ -8,6 +8,9 @@ DONE:
     * Breakdown of sum of money per month
     * Breakdown of new members per month
     * List of members that (have|have not) paid on time.
+TODO:
+    * Make function: members_at_month (with specific month)
+    * Make function: money_at_month (with specific month)
 """
 
 import datetime
@@ -122,13 +125,14 @@ def money_per_month():
     pylab.xticks(numbers, labels, rotation='vertical')
 
     pylab.plot(x, y)
+    #pylab.bar(x, y)
     pylab.xlabel('Month')
     pylab.ylabel('Income (Euro)')
     pylab.show()
 
 
-#money_per_month()
-#members_per_month()
+money_per_month()
+members_per_month()
 
 #cmpfunc = lambda d1, d2: d1 >= d2 # on time
 #cmpfunc = lambda d1, d2: d1 < d2 # overdue

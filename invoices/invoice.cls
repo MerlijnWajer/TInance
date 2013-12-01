@@ -91,8 +91,8 @@
     \endhead
 }{
     \hline\hline\hline
-    {\bf Balance Excluding Tax} & & & {\bf \euro{}\total{taxcost}} \\
+    {\bf Total Excluding Tax} & & & {\bf \euro{}\total{taxcost}} \\
     {\bf 21\% BTW} & & & {\bf \euro{}\total{tax}} \\
-    {\bf Balance Due} & & & {\bf \euro{}\total{cost}} \\
+    {\bf Total Due} & & & {\bf \euro{}\total{cost}} \\
     \end{longtable}
 }

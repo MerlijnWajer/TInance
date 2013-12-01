@@ -44,7 +44,12 @@ class Member(Base):
             y += 1
             m -= 12
 
-        return datetime.date(d.year + y, d.month + m, d.day)
+        try:
+            d = datetime.date(d.year + y, d.month + m, d.day)
+        except ValueError:
+            # XXX, YES, I KNOW
+            d = datetime.date(d.year + y, d.month + m, 30)
+        return d
 
     def __repr__(self):
         s = '<Member (%s, %s, %s)>' % (self.name, self.member_date, self.paid_until())
