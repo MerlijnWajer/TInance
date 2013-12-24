@@ -60,8 +60,8 @@ keyid:     k
 """)
 parser.add_argument('-r', '--restrict', default=None,
         help='Possible options: overdue,ontime,all')
-
 parser.add_argument('-a', '--add', action='store_true', default=False)
+parser.add_argument('-J', '--JSON', action='store_true', default=False)
 
 
 args = parser.parse_args()
@@ -72,6 +72,18 @@ if args.search and args.add:
     print
     parser.print_help()
     sys.exit(1)
+
+if args.JSON: # For LDAP
+    import json
+    q = Session.query(Member).filter(Member.active == True).all()
+
+    members = []
+    for x in q:
+        members.append({"nickname":x.nick, "email":x.email})
+
+    print json.dumps(members, indent=4)
+
+
 
 if args.search:
     f = lambda _, a: _.like(a)
