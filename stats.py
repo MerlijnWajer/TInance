@@ -1,147 +1,90 @@
 #!/usr/bin/env python2
-import pylab
 
 from sql import *
-
-"""
-DONE:
-    * Breakdown of sum of money per month
-    * Breakdown of new members per month
-    * List of members that (have|have not) paid on time.
-TODO:
-    * Make function: members_at_month (with specific month)
-    * Make function: money_at_month (with specific month)
-"""
 
 import datetime
 import time
 
+"""
+Give member count, inactive and active seperate
+Provide percentage of members paying more than X
+Provide percentage of members who paid on time, and who have not
+"""
+
 start = datetime.date(2011, 11, 1)
 
-def average_payment():
-    s = Session.query(Payment).all()
-    ss = sum([0 if _.months == 0 else _.amount / _.months for _ in s])
-    l = sum([_.months for _ in s])
-    return ss / l
 
-def mocalc(d):
-    """ Convert years * 12 + months back to datetime """
-    years = d / 12
-    d -= years * 12
-    years += start.year
-    months = d + 1 # So januari is 1, not 0
+def member_count():
+    """
+    """
+    q = Session.query(Member).filter(Member.active==True)
+    inactive = Session.query(Member).filter(Member.active==False)
+    return len(q.all()), len(inactive.all())
 
-    return '%s-%s' % (years, months)
-    #return datetime.date(years, months, 1)
+def members_paying_more_than_x():
+    """
+    """
 
+def members_query(nick=None, name=None, email=None, active=None):
+    f = lambda _, a: _.like(a)
+    q = Session.query(Member)
 
-def members_per_month():
-    """ Members added per month; not cummulative """
-    s = Session.query(Member).all()
-    so = sorted(s, key=lambda x: x.member_date)
+    if nick:
+        q = q.filter(f(Member.nick, nick))
+    if name:
+        q = q.filter(f(Member.name, name))
+    if email:
+        q = q.filter(f(Member.email, email))
+    if active:
+        q = q.filter(Member.active, active)
 
-    d = [x.member_date for x in so]
+    return q
 
-    d = [(_.year - start.year) * 12 + _.month for _ in d]
+def members_query_g(**kwargs):
+    f = lambda _, a: _.like(a)
+    q = Session.query(Member)
 
-    t = set(d)
+    for k, d in kwargs.iteritems():
+        if d:
+            q = q.filter(f(getattr(Member, k), k))
 
-    numbers = range(max(t))
-    labels = map(mocalc, numbers)
+    return q
 
-    pylab.xticks(numbers, labels, rotation='vertical')
+def member_paid(m, f, grace=None):
+    t = time.localtime()
+    due = datetime.date(t.tm_year, t.tm_mon, 1)
 
-    n, bins, patches = pylab.hist(d, bins=max(t))
-    pylab.show()
+    if f(m.paid_until(), due):
+        return m
+    return None
 
-    pylab.clf()
+def member_overdue(m):
+    """
+    """
+    f = lambda d1, d2: d1 < d2 # overdue
+    return member_paid(m, f)
 
-    pylab.xticks(numbers, labels, rotation='vertical')
-    pylab.plot(numbers, n)
-    pylab.show()
+def member_ontime(m):
+    """
+    """
+    f = lambda d1, d2: d1 >= d2 # on time
+    return member_paid(m, f)
 
-    pylab.clf()
+def members_paid(f):
+    q = members_query()
+    for m in q:
+        if not f:
+            yield m
+        elif f(m):
+            yield m
 
-    cumn = []
-    for i in xrange(len(n)):
-        cumn.append(sum(n[:i]))
+def members_overdue():
+    return members_paid(member_overdue)
 
-    pylab.xticks(numbers, labels, rotation='vertical')
-    pylab.plot(numbers, cumn)
-    pylab.show()
-    pylab.clf()
+def members_ontime():
+    return members_paid(member_ontime)
 
-def money_per_month():
-    def add_month_to_date(date, months):
-        y = (date.month + months) / 12
-        m = ((date.month + months) % 12) + 1
-
-        return (date.year + y, m)
-
-
-    s = Session.query(Payment).all()
-    so = sorted(s, key=lambda x: x.date)
-
-    d = {}
-    for p in so:
-        if (p.date.year, p.date.month) in d:
-            d[(p.date.year, p.date.month)].append(p)
-        else:
-            d[(p.date.year, p.date.month)] = [p]
-
-    dc = {}
-    # Dirty hack for start
-    for x in xrange(2011, 2012):
-        for y in xrange(10, 13):
-            dc[(x, y)] = 0
-
-    for k, pays in d.iteritems():
-        y, m = k
-        for v in pays:
-
-            for m in xrange(v.months):
-                yy, mm = add_month_to_date(v.date, m)
-
-                if (yy, mm) not in dc:
-                    dc[(yy, mm)] = 0
-
-                dc[(yy, mm)] += v.amount / v.months
-
-
-    l = []
-    for k, v in dc.iteritems():
-        l.append((k, int(v)))
-
-    ll = sorted(l, key=lambda x: datetime.date(x[0][0], x[0][1], 1))
-
-    x, y = [], []
-    for v in ll:
-        x.append((v[0][0] - start.year) * 12 + v[0][1])
-        y.append(v[1])
-
-    numbers = range(max(x))
-    labels = map(mocalc, numbers)
-
-    pylab.xticks(numbers, labels, rotation='vertical')
-
-    pylab.plot(x, y)
-    #pylab.bar(x, y)
-    pylab.xlabel('Month')
-    pylab.ylabel('Income (Euro)')
-    pylab.show()
-
-
-money_per_month()
-members_per_month()
-
-#cmpfunc = lambda d1, d2: d1 >= d2 # on time
-#cmpfunc = lambda d1, d2: d1 < d2 # overdue
-cmpfunc = lambda d1, d2: True #all
-
-t = time.localtime()
-due = datetime.date(t.tm_year, t.tm_mon, 1)
-
-s = Session.query(Member).all()
-for m in s:
-    if cmpfunc(m.paid_until(), due) and m.active:
-        print repr(m).decode('utf-8'), len(m.payments), m.email, m.nick
+if __name__ == '__main__':
+    print member_count()
+    print list(members_overdue())
+    print list(members_ontime())

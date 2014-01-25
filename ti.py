@@ -6,6 +6,8 @@ import datetime, time
 
 from sql import *
 
+import stats
+
 NAME = 'Technologia Incognita'
 
 parser = argparse.ArgumentParser(description='%s administration tool' % NAME,
@@ -30,7 +32,7 @@ Member:
 * Add
 * List
 * [Future] Set non-active
-* [Future] 
+* [Future] Manage payments?
 
 
 * Add member
@@ -67,8 +69,6 @@ parser.add_argument('-J', '--JSON', action='store_true', default=False)
 args = parser.parse_args()
 if args.search and args.add:
     print 'Searching and adding at the same time? Sense you no MAKE!'
-    # Trolo
-    print 'make: *** No targets specified and no makefile found.  Stop.'
     print
     parser.print_help()
     sys.exit(1)
@@ -88,37 +88,24 @@ if args.JSON: # For LDAP
 if args.search:
     f = lambda _, a: _.like(a)
 
-    q = Session.query(Member)
-    if args.nick:
-        q = q.filter(f(Member.nick, args.nick))
-    if args.name:
-        q = q.filter(f(Member.name, args.name))
-    if args.email:
-        q = q.filter(f(Member.email, args.email))
-
-    if args.active_only:
-        q = q.filter(Member.active == True)
-
+    q = stats.members_query(args.nick, args.name, args.email, args.active_only)
     r = q.all()
+
     for m in r:
         if args.restrict:
-            if args.restrict not in ('overdue', 'ontime', 'all'):
-                print 'Invalid restrict!'
+            try:
+                cmpfunc = {
+                    'overdue': stats.member_overdue,
+                    'ontime' : stats.member_ontime,
+                    'all'    : None
+                }[args.restrict]
+            except KeyError:
+                print 'Invalid restrict:', args.restrict
                 parser.print_help()
                 sys.exit(1)
 
-            t = time.localtime()
-            due = datetime.date(t.tm_year, t.tm_mon, 1)
-            if args.restrict == 'overdue':
-                cmpfunc = lambda d1, d2: d1 < d2 # overdue
-            elif args.restrict == 'ontime':
-                cmpfunc = lambda d1, d2: d1 >= d2 # on time
-            elif args.restrict == 'all':
-                cmpfunc = lambda d1, d2: True #all
-
-            if cmpfunc(m.paid_until(), due):
+            if cmpfunc(m):
                 print m.format(args.format, human_read=args.human).encode('utf-8')
-
 
         else:
             print m.format(args.format, human_read=args.human).encode('utf-8')
