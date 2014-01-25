@@ -35,8 +35,8 @@ def members_query(nick=None, name=None, email=None, active=None):
         q = q.filter(f(Member.name, name))
     if email:
         q = q.filter(f(Member.email, email))
-    if active:
-        q = q.filter(Member.active, active)
+    if active is not None:
+        q = q.filter(Member.active == active)
 
     return q
 

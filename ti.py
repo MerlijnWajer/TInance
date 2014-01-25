@@ -44,6 +44,7 @@ parser.add_argument('-n', '--nick', type=unicode)
 parser.add_argument('-N', '--name', type=unicode)
 parser.add_argument('-e', '--email', type=unicode)
 parser.add_argument('-A', '--active-only', action='store_true', default=False)
+parser.add_argument('-D', '--inactive-only', action='store_true', default=False)
 parser.add_argument('--activate', action='store_true', default=False)
 parser.add_argument('--deactivate', action='store_true', default=False)
 parser.add_argument('-d', '--date', type=unicode,
@@ -86,9 +87,15 @@ if args.JSON: # For LDAP
 
     print json.dumps(members, indent=4)
 
+activequery = None
+if args.active_only:
+    activequery = True
+if args.inactive_only:
+    activequery = False
 
 if args.activate or args.deactivate:
-    q = stats.members_query(args.nick, args.name, args.email, args.active_only)
+
+    q = stats.members_query(args.nick, args.name, args.email, activequery)
     for m in q:
         m.active = args.activate and not args.deactivate
         Session.add(m)
@@ -96,7 +103,7 @@ if args.activate or args.deactivate:
     Session.commit()
 
 elif args.search:
-    q = stats.members_query(args.nick, args.name, args.email, args.active_only)
+    q = stats.members_query(args.nick, args.name, args.email, activequery)
     r = q.all()
 
     for m in r:
