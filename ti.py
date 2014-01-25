@@ -10,6 +10,9 @@ import stats
 
 NAME = 'Technologia Incognita'
 
+def pretty_print(m, form, human):
+    print m.format(form, human_read=human).encode('utf-8')
+
 parser = argparse.ArgumentParser(description='%s administration tool' % NAME,
         epilog='') # TODO funny epilog
 
@@ -17,9 +20,6 @@ parser = argparse.ArgumentParser(description='%s administration tool' % NAME,
 """
 
 Examples:
-
-
-
 
 List all members that as overdue in paying, in csv:
 
@@ -39,10 +39,13 @@ Member:
 * List members
 """
 
+
 parser.add_argument('-n', '--nick', type=unicode)
 parser.add_argument('-N', '--name', type=unicode)
 parser.add_argument('-e', '--email', type=unicode)
 parser.add_argument('-A', '--active-only', action='store_true', default=False)
+parser.add_argument('--activate', action='store_true', default=False)
+parser.add_argument('--deactivate', action='store_true', default=False)
 parser.add_argument('-d', '--date', type=unicode,
     help='Either a valid format string or "now"')
 parser.add_argument('--dateformat', type=unicode,
@@ -59,17 +62,17 @@ mail:      m
 join-date: j
 paid:      p
 keyid:     k
+active:    A
 """)
 parser.add_argument('-r', '--restrict', default=None,
         help='Possible options: overdue,ontime,all')
 parser.add_argument('-a', '--add', action='store_true', default=False)
 parser.add_argument('-J', '--JSON', action='store_true', default=False)
 
-
 args = parser.parse_args()
-if args.search and args.add:
-    print 'Searching and adding at the same time? Sense you no MAKE!'
-    print
+
+if sum((args.search, args.add, args.deactivate)) > 1:
+    print 'Searching, deleting and/or adding at the same time? Sense you no MAKE!'
     parser.print_help()
     sys.exit(1)
 
@@ -84,10 +87,15 @@ if args.JSON: # For LDAP
     print json.dumps(members, indent=4)
 
 
+if args.activate or args.deactivate:
+    q = stats.members_query(args.nick, args.name, args.email, args.active_only)
+    for m in q:
+        m.active = args.activate and not args.deactivate
+        Session.add(m)
 
-if args.search:
-    f = lambda _, a: _.like(a)
+    Session.commit()
 
+elif args.search:
     q = stats.members_query(args.nick, args.name, args.email, args.active_only)
     r = q.all()
 
@@ -105,10 +113,10 @@ if args.search:
                 sys.exit(1)
 
             if cmpfunc(m):
-                print m.format(args.format, human_read=args.human).encode('utf-8')
+                pretty_print(m, args.format, args.human)
 
         else:
-            print m.format(args.format, human_read=args.human).encode('utf-8')
+            pretty_print(m, args.format, args.human)
 
 elif args.add:
     add_args = ['nick', 'name', 'email', 'date']

@@ -64,6 +64,7 @@ class Member(Base):
         join-date: %j
         paid:      %p
         keyid:     %k
+        active:    %A
         """
         m = {
             '%i' : str(self.id),
@@ -73,6 +74,7 @@ class Member(Base):
             '%j' : str(self.member_date.strftime('%A %e, %B') if human_read else self.member_date),
             '%p' : str(self.paid_until().strftime('%A %e, %B') if human_read else self.paid_until()),
             '%k' : str(self.fobid),
+            '%A' : str(self.active),
         }
 
         for pat, repl in m.iteritems():
