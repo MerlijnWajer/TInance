@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 from sql import *
+from sqlalchemy import func
 
 import datetime
 import time
@@ -21,9 +22,31 @@ def member_count():
     inactive = Session.query(Member).filter(Member.active==False)
     return len(q.all()), len(inactive.all())
 
-def members_paying_more_than_x():
+def member_payments():
+    q = Session.query(Member.id, Member.nick, func.sum(Payment.amount) /
+            func.sum(Payment.months)).join((Payment, Member.id
+                == Payment.member_id)).filter(Member.active == True).\
+                        group_by(Member.id).order_by(Member.id)
+
+    return q
+
+def avg_payment_per_member():
+    r = member_payments().all()
+
+    s = reduce(lambda x, y : x + y, (_[2] for _ in r))
+    return s / len(r)
+
+    #for x in r:
+    #    _id, nick, mon = x
+    #    print _id, nick, mon
+
+
+def members_paying_f(f):
     """
     """
+    r = member_payments().all()
+
+    return len(r), filter(lambda _:f(_[2]), r)
 
 def members_query(nick=None, name=None, email=None, active=None):
     f = lambda _, a: _.like(a)
@@ -71,7 +94,7 @@ def member_ontime(m):
     return member_paid(m, f)
 
 def members_paid(f):
-    q = members_query()
+    q = members_query(active=True)
     for m in q:
         if not f:
             yield m
@@ -85,6 +108,12 @@ def members_ontime():
     return members_paid(member_ontime)
 
 if __name__ == '__main__':
-    print member_count()
-    print list(members_overdue())
-    print list(members_ontime())
+    #print member_count()
+    #print avg_payment_per_member()
+    tot, mem = members_paying_f(lambda x: x == 20)
+    print tot, len(mem)
+    #for x in mem:
+    #    print x
+
+    print 'Amount paid on time:', len(list(members_ontime()))
+    print 'Amount paid late:', len(list(members_overdue()))
