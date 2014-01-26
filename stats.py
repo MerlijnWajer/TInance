@@ -16,8 +16,6 @@ start = datetime.date(2011, 11, 1)
 
 
 def member_count():
-    """
-    """
     q = Session.query(Member).filter(Member.active==True)
     inactive = Session.query(Member).filter(Member.active==False)
     return len(q.all()), len(inactive.all())
@@ -30,20 +28,24 @@ def member_payments():
 
     return q
 
+def expected_sum():
+    r = member_payments().all()
+    s = reduce(lambda x, y : x + y, (_[2] for _ in r))
+    return s
+
 def avg_payment_per_member():
     r = member_payments().all()
-
     s = reduce(lambda x, y : x + y, (_[2] for _ in r))
-    return s / len(r)
+
 
     #for x in r:
     #    _id, nick, mon = x
     #    print _id, nick, mon
 
+    return s / len(r)
+
 
 def members_paying_f(f):
-    """
-    """
     r = member_payments().all()
 
     return len(r), filter(lambda _:f(_[2]), r)
@@ -108,8 +110,8 @@ def members_ontime():
     return members_paid(member_ontime)
 
 if __name__ == '__main__':
-    #print member_count()
-    #print avg_payment_per_member()
+    print 'Member count (active):', member_count()
+    print avg_payment_per_member()
     tot, mem = members_paying_f(lambda x: x == 20)
     print tot, len(mem)
     #for x in mem:
@@ -117,3 +119,5 @@ if __name__ == '__main__':
 
     print 'Amount paid on time:', len(list(members_ontime()))
     print 'Amount paid late:', len(list(members_overdue()))
+
+    print 'Expected income per month:', expected_sum()
