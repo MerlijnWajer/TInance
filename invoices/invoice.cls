@@ -63,8 +63,8 @@
     % Create a new row from title, unit quantity, unit rate, and unit name
     \newcommand*{\unitrow}[4]{%
          \addtocounter{cost}{1000 * \real{##2} * \real{##3}}%
-         \addtocounter{taxcost}{1000 * \real{##2} * \real{##3} * \real{0.826027}}%
-         \addtocounter{tax}{1000 * \real{##2} * \real{##3} * \real{0.1735537}}%
+         %\addtocounter{taxcost}{1000 * \real{##2} * \real{##3} * \real{0.826027}}%
+         %\addtocounter{tax}{1000 * \real{##2} * \real{##3} * \real{0.1735537}}%
          ##1 & \formatNumber{##2} ##4 & \euro{}\formatNumber{##3} & \euro{}\FPmul{\cost}{##2}{##3}\formatNumber{\cost}%
          \\
     }
@@ -91,8 +91,8 @@
     \endhead
 }{
     \hline\hline\hline
-    {\bf Total Excluding Tax} & & & {\bf \euro{}\total{taxcost}} \\
-    {\bf 21\% BTW} & & & {\bf \euro{}\total{tax}} \\
+    %{\bf Total Excluding Tax} & & & {\bf \euro{}\total{taxcost}} \\
+    %{\bf 21\% BTW} & & & {\bf \euro{}\total{tax}} \\
     {\bf Total Due} & & & {\bf \euro{}\total{cost}} \\
     \end{longtable}
 }
