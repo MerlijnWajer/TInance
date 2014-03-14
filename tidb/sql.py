@@ -1,7 +1,7 @@
 import sqlalchemy
 from sqlalchemy import create_engine
 
-engine = create_engine("sqlite:///%s" % ('db.db'))
+engine = create_engine("sqlite:///%s" % ('tidb/db.db'))
 
 from classes import Member, Payment, Base
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
-from sql import *
+import tidb
+from tidb.sql import *
 from sqlalchemy import func
 
 import datetime

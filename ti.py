@@ -4,7 +4,8 @@
 import os, sys, argparse, re
 import datetime, time
 
-from sql import *
+import tidb
+from tidb.sql import *
 
 import stats
 
