@@ -91,6 +91,7 @@ class Payment(Base):
     amount = Column(Numeric, nullable=False)
     comment = Column(Unicode(200), nullable=False, default=u'')
     months = Column(Integer, nullable=False, default=1)
+    payment_hash = Column(Integer, nullable=True, default=None)
 
     # member -> Member object
 
