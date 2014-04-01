@@ -42,6 +42,19 @@ def parse(filename):
                 raw=''.join(trans))))
     return results
 
+from member_strings import ID_STRINGS
+
+def identify_member(payment):
+    p = payment
+
+    for nick, strings in ID_STRINGS.iteritems():
+        for string in strings:
+            if p.desc.find(string) > 0:
+                return nick
+
+    return None
+    #raise ValueError('Cannot identify payment')
+
 # Identifying:
 # 0) Look for IBAN/<nr>
 # 1) Look for GIRO  <nr>
@@ -51,6 +64,8 @@ def parse(filename):
 if __name__ == '__main__':
     import sys
     s = parse(sys.argv[1])
+    print len(s)
     for x in s:
-        print x.desc
-        print hash(x)
+        n = identify_member(x)
+        if n:
+            print n, x.desc
