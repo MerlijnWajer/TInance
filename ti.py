@@ -71,6 +71,17 @@ parser.add_argument('-r', '--restrict', default=None,
 parser.add_argument('-a', '--add', action='store_true', default=False)
 parser.add_argument('-J', '--JSON', action='store_true', default=False)
 
+parser.add_argument('--payment', action='store_true', default=False,
+        help='Enter payment mode')
+parser.add_argument('--payment-months', type=int,
+        help='Amount of months')
+parser.add_argument('--payment-amount', type=float,
+        help='Payment Amount')
+parser.add_argument('--payment-comment', type=str,
+        help='Payment comment')
+parser.add_argument('--payment-hash', type=int,
+        help='Payment hash')
+
 args = parser.parse_args()
 
 if sum((args.search, args.add, args.deactivate)) > 1:
@@ -104,41 +115,60 @@ if args.activate or args.deactivate:
     Session.commit()
 
 elif args.search:
-    q = stats.members_query(args.nick, args.name, args.email, activequery)
-    r = q.all()
+    if args.payment:
+        q = stats.members_query(args.nick, args.name, args.email, activequery)
+        r = q.all()
 
-    for m in r:
-        if args.restrict:
-            try:
-                cmpfunc = {
-                    'overdue': stats.member_overdue,
-                    'ontime' : stats.member_ontime,
-                    'all'    : None
-                }[args.restrict]
-            except KeyError:
-                print 'Invalid restrict:', args.restrict
-                parser.print_help()
-                sys.exit(1)
+        for m in r:
+            for p in m.payments:
+                print m.nick, 'Date:', p.date, 'Amount:', p.amount, 'Months:', p.months
 
-            if cmpfunc(m):
+    else:
+        q = stats.members_query(args.nick, args.name, args.email, activequery)
+        r = q.all()
+
+        for m in r:
+            if args.restrict:
+                try:
+                    cmpfunc = {
+                        'overdue': stats.member_overdue,
+                        'ontime' : stats.member_ontime,
+                        'all'    : None
+                    }[args.restrict]
+                except KeyError:
+                    print 'Invalid restrict:', args.restrict
+                    parser.print_help()
+                    sys.exit(1)
+
+                if cmpfunc(m):
+                    pretty_print(m, args.format, args.human)
+
+            else:
                 pretty_print(m, args.format, args.human)
 
-        else:
-            pretty_print(m, args.format, args.human)
-
 elif args.add:
-    add_args = ['nick', 'name', 'email', 'date']
-    if not all(map(lambda x: getattr(args, x), add_args)):
-        print 'Please provide: ' + ', '.join(add_args)
-        parser.print_help()
-        sys.exit(1)
+    if args.payment:
+        add_args = ['nick', 'payment_amount', 'payment_comment',
+        'payment_months', 'payment_hash', 'date'] # XXX hash optional
+        if not all(map(lambda x: getattr(args, x), add_args)):
+            print 'Please provide: ' + ', '.join(add_args)
+            parser.print_help()
+            sys.exit(1)
+        # TODO
 
-    d = args.date
-    if d == 'now':
-        d = datetime.date.today()
     else:
-        d = datetime.datetime.strptime(args.date, args.dateformat)
+        add_args = ['nick', 'name', 'email', 'date']
+        if not all(map(lambda x: getattr(args, x), add_args)):
+            print 'Please provide: ' + ', '.join(add_args)
+            parser.print_help()
+            sys.exit(1)
 
-    m = Member(nick=args.nick, name=args.name, email=args.email, member_date=d)
-    Session.add(m)
-    Session.commit()
+        d = args.date
+        if d == 'now':
+            d = datetime.date.today()
+        else:
+            d = datetime.datetime.strptime(args.date, args.dateformat)
+
+        m = Member(nick=args.nick, name=args.name, email=args.email, member_date=d)
+        Session.add(m)
+        Session.commit()
