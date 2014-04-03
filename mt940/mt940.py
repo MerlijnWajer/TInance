@@ -66,6 +66,10 @@ if __name__ == '__main__':
     s = parse(sys.argv[1])
     print len(s)
     for x in s:
+        if x.dc == 'D':
+            pass
         n = identify_member(x)
         if n:
-            print n, x.desc
+            print n
+        else:
+            print >>sys.stderr, 'Cannot find:', x.desc
