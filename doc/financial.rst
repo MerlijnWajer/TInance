@@ -5,17 +5,58 @@ We will start by introducing terminology and how the system works. It will later
 on cover manipulating the database using command line tools and automated
 processing of transactions; and finally gathering useful information.
 
+A word of warning, some parts of the guide require access to private files
+(mainly: the database) which are stored in another private location, since we
+will not provide those to the public.
+
 What the system needs to do
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Database
 ~~~~~~~~
 
+The database contains two tables. One table to store information about members;
+one row per member. This contains basic information such as:
+
+* Email-address
+* Nickname
+* Full name
+* Date joined
+* Entrance-key ID
+* Active (or not)
+
+The other table contains the membership payments for the members, each row a
+payment for one or multiple months. Every payment contains, at least:
+
+* Reference to member
+* Amount of money paid
+* Amount of months paid for in this transaction (typically 1)
+* Date of the transaction
+
 The database is SQLite3 and stored in ``tidb/db.db``.
+**If the database does not exist yet, it is created by the frontend and will be
+empty; you need to copy the database from the private location.**
 
 Command line frontend
 ~~~~~~~~~~~~~~~~~~~~~
 
+The file ``ti.py`` is the command line frontend to the database and contains
+some powerful search and statistics features.
+
+
+Adding a member to the system
+`````````````````````````````
+
+Finding out which members are overdue with their payments
+`````````````````````````````````````````````````````````
+
+Issue the following command:
+
+    python ti.py -f 'Joined: %j, Paid until: %p, Name: %N, Email: %m' -s -n % -r 'overdue'
+
+Or, in a more parseable format:
+
+    python ti.py -f '%j, %p, %N, %m' -s -n % -r 'overdue'
 
 Bank imports
 ~~~~~~~~~~~~
