@@ -1,13 +1,16 @@
 import re
 from datetime import date
 
+import hashlib
+
 class MT940Payment(object):
 
     def __init__(self, **kwargs):
-        self._hash = 0
+        s = ''
         for x, y in kwargs.iteritems():
+            s += str(y)
             setattr(self, x, y)
-            self._hash ^= hash(y)
+        self._hash = str(hashlib.sha256(s).hexdigest())
 
     def __hash__(self):
         return self._hash
@@ -72,13 +75,15 @@ if __name__ == '__main__':
         if x.dc == 'D':
             pass
         n = identify_member(x)
+
         if n:
             accept.append({'nick' : n, 'date' : str(x.date), 'amount' : x.amount,
-                'desc' : x.desc, 'hash' : hash(x), 'months' : 1})
+                'desc' : x.desc, 'hash' : x._hash, 'months' : 1})
         else:
             reject.append({'nick' : 'UNKNOWN', 'date' : str(x.date), 'amount' : x.amount,
-                'desc' : x.desc, 'hash' : hash(x), 'months' : 1})
+                'desc' : x.desc, 'hash' : x._hash, 'months' : 1})
 
     import json
+
     print json.dumps(accept, indent=4)
     print >>sys.stderr, json.dumps(reject, indent=4)

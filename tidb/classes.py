@@ -91,7 +91,9 @@ class Payment(Base):
     amount = Column(Numeric, nullable=False)
     comment = Column(Unicode(200), nullable=False, default=u'')
     months = Column(Integer, nullable=False, default=1)
-    payment_hash = Column(Integer, nullable=True, default=None)
+    #payment_hash = Column(Integer, nullable=True, default=None) # TODO: Remove
+    # from DB
+    payment_sha256 = Column(String(64), nullable=True, default=None)
 
     # member -> Member object
 
