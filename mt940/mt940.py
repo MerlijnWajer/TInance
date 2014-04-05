@@ -73,9 +73,11 @@ if __name__ == '__main__':
             pass
         n = identify_member(x)
         if n:
-            accept.append([n, str(x.date), x.amount, x.desc, hash(x)])
+            accept.append({'nick' : n, 'date' : str(x.date), 'amount' : x.amount,
+                'desc' : x.desc, 'hash' : hash(x), 'months' : 1})
         else:
-            reject.append(['UNKNOWN', str(x.date), x.amount, x.desc, hash(x)])
+            reject.append({'nick' : 'UNKNOWN', 'date' : str(x.date), 'amount' : x.amount,
+                'desc' : x.desc, 'hash' : hash(x), 'months' : 1})
 
     import json
     print json.dumps(accept, indent=4)
