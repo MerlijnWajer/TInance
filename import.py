@@ -20,6 +20,7 @@ parser = argparse.ArgumentParser(description='%s Import tool' % NAME,
 parser.add_argument('-f', '--file', type=str, default='')
 parser.add_argument('-i', '--really-import', action='store_true', default=False)
 parser.add_argument('-C', '--no-check-hashes', action='store_true', default=False)
+parser.add_argument('-R', '--reject-file', type=str, default='')
 
 
 args = parser.parse_args()
@@ -30,6 +31,20 @@ if args.file == '':
 fd = open(args.file)
 
 payments = json.loads(fd.read())
+
+if args.reject_file:
+    rfd = open(args.reject_file)
+    rejects = map(lambda x: x.rstrip('\n'), rfd.readlines())
+
+    fp = []
+
+    for p in payments:
+        if p['hash'] not in rejects:
+            fp.append(p)
+        else:
+            print 'Rejecting:', p['hash']
+
+    payments = list(fp)
 
 if not args.no_check_hashes:
     fp = []
