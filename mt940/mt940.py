@@ -35,8 +35,8 @@ def parse(filename):
         cents = match.group(4)
         while len(cents) < 2:
             cents += '0'
-        amount = int(match.group(3) + cents)
-        desc = trans[1].strip()
+        amount = float(match.group(3) + cents) / 100.
+        desc = trans[1].strip().replace('\n', '').replace('  ', ' ')
         results.append( 
             MT940Payment(**dict(dc=dc, date=d, amount=amount, desc=desc,
                 raw=''.join(trans))))
@@ -64,12 +64,19 @@ def identify_member(payment):
 if __name__ == '__main__':
     import sys
     s = parse(sys.argv[1])
-    print len(s)
+
+    accept = []
+    reject = []
+
     for x in s:
         if x.dc == 'D':
             pass
         n = identify_member(x)
         if n:
-            print n
+            accept.append([n, str(x.date), x.amount, x.desc, hash(x)])
         else:
-            print >>sys.stderr, 'Cannot find:', x.desc
+            reject.append(['UNKNOWN', str(x.date), x.amount, x.desc, hash(x)])
+
+    import json
+    print json.dumps(accept, indent=4)
+    print >>sys.stderr, json.dumps(reject, indent=4)
