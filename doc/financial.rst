@@ -132,16 +132,17 @@ members_strings.py file which maps certain payments to members based on simple
 string searches. It will output payments recognised to stdout; whereas unknown
 payments are output to stderr. Usage would be like this:
 
-**TODO: Also add a function to, while parsing, never even save certain hashes to
-reject.json (nor accept.json) because the hash exists in a file known
-unimportant hashes**
-
     $ python mt940.py MT940140331144020.STA  1>accept.json 2>reject.json
 
 Where ``accept.json`` will now contain all the recognised payments, in
 JSON format.
 The ``reject.json`` file contains the other (not immediately) recognised
 payments, also in JSON format.
+
+Optionally, you can have the mt940.py script ignore certain hashes (where each
+line contains a hash), like so:
+
+    $ python mt940.py MT940140331144020.STA file_with_hashes_to_ignore.txt 1>accept.json 2>reject.json
 
 The JSON format contains the following entries:
 

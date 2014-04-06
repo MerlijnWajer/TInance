@@ -68,12 +68,23 @@ if __name__ == '__main__':
     import sys
     s = parse(sys.argv[1])
 
+    if len(sys.argv) == 3:
+        rejfd = open(sys.argv[2])
+        rej = map(lambda x: x.rstrip('\n'), rejfd.readlines())
+    else:
+        rej = []
+
+
     accept = []
     reject = []
 
     for x in s:
         if x.dc == 'D':
             pass
+        if x._hash in rej:
+            print 'Hash (%s) found in previous hashes file; ignoring' % x._hash
+            continue
+
         n = identify_member(x)
 
         if n:
