@@ -244,7 +244,7 @@ Importing, a recap
 
 First, process the MT940 data:
 
-    $ python mt940.py MT940140331144020.STA  1>accept.json 2>reject.json
+    $ python mt940.py MT940140331144020.STA [reject_hashes_store] 1>accept.json 2>reject.json
 
 Then, manually inspect and modify the ``accept.json``, ``reject.json`` and
 optionally ``todo.json``. Finally, import it to the database:
