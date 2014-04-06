@@ -12,6 +12,13 @@ will not provide those to the public.
 What the system needs to do
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The system needs to manage member administration. This entails:
+
+* Keeping track of who is a member and who is not
+* Managing payments made by members (Importing data from banks)
+* Provide reports and statistics of the above
+* Be easy and fast to manage
+
 Database
 ~~~~~~~~
 
@@ -32,6 +39,7 @@ payment for one or multiple months. Every payment contains, at least:
 * Amount of money paid
 * Amount of months paid for in this transaction (typically 1)
 * Date of the transaction
+* Optional: A hash of the transaction used for identification when importing
 
 The database is SQLite3 and stored in ``tidb/db.db``.
 **If the database does not exist yet, it is created by the frontend and will be
@@ -41,11 +49,34 @@ Command line frontend
 ~~~~~~~~~~~~~~~~~~~~~
 
 The file ``ti.py`` is the command line frontend to the database and contains
-some powerful search and statistics features.
+some powerful search and statistics features. The frontend currently allows one
+to:
 
+* Add members to the administration database
+* Activate/Deactivate members
+* Search for members
+* Print a report of payments; members who are: overdue or on time.
+* Perform JSON exports for our LDAP scripts
+* List payments per member
+
+In the near future, it will also allow:
+
+* Manually adding a payment
+* Manually modifing a member and/or payment
+* Have options to generate graphs and other statistics (this is currently only
+  possible with other, external python scripts such as ``stats.py`` and
+  ``graphs.py``.
+
+Simply running:
+
+    **python ti.py --help**
+
+Should give you the main idea on how to use it.
 
 Adding a member to the system
 -----------------------------
+
+**TODO**
 
 Finding out which members are overdue with their payments
 ---------------------------------------------------------
@@ -119,7 +150,7 @@ The JSON format contains the following entries:
   this makes it possible to recognise if a payment was already processed, and
   either warn the treasurer or even ignore the payment all together.
 
-An example ::
+An example: ::
 
     {
         "hash": "b717ec481b3a84f1faa36c3344af2f70348b84ebd8ef1e471786c4100fa70e6c", 
