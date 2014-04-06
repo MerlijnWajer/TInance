@@ -1,0 +1,19 @@
+
+
+Data:
+* MT940XXXXX - contains MT940 data to analyse. Remove after use.
+
+* reject_hashes_store - contains hashes, line seperated of previous
+transactions that are not important. Do not remove after use.
+
+* accept.json - volatile, current transactions that need to be processed
+  Remove after use.
+
+* reject.json - transactions that may be important. Either move the json parts per
+  transaction to accept.json ; or cat the hash to reject_hashes_store. (Or use
+  the filter_reject.sh script)
+  Remove after use (after moving hashes and json's around)
+
+* todo.json - might be useful to stage certain transactions (in json) from
+  either rej.json or accept.json ; consider this just temporary storage to aid
+  the process of processing payments

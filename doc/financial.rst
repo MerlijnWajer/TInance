@@ -197,7 +197,7 @@ file unless you are sure it can be removed.
 On recognising previous payments
 ````````````````````````````````
 
-It may very happen that you process a MT940 file which contains previously
+It may very well happen that you process a MT940 file which contains previously
 analysed transactions. Be it transactions that are already-processed membership
 payments or transactions that were not relevant. The system gives you a way to
 automatically discard both; as they are not relevant - because they have been
@@ -212,6 +212,10 @@ least at this point. It requires you to **save the hashes from all your previous
 (final) ``reject.json`` files.** This can be done as follows:
 
     $ mt940/filter_reject.sh reject.json >> reject_hashes_store
+
+**TODO: Instructions below on the -R flag are to be deprecated in favour of
+filtering hashes earlier; with the mt940.py script rather than the import.py
+script.**
 
 After which the import tool can be told to read the ``reject_hashes_store`` file
 to discard any transactions that match one of the hashes found in there, with
