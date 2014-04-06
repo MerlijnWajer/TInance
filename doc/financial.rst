@@ -45,10 +45,10 @@ some powerful search and statistics features.
 
 
 Adding a member to the system
-`````````````````````````````
+-----------------------------
 
 Finding out which members are overdue with their payments
-`````````````````````````````````````````````````````````
+---------------------------------------------------------
 
 Issue the following command:
 
