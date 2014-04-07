@@ -1,3 +1,5 @@
 *.db
 member_strings.py
 *.json
+*.STA
+*.tar*

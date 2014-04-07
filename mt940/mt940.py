@@ -39,10 +39,10 @@ def parse(filename):
         while len(cents) < 2:
             cents += '0'
         amount = float(match.group(3) + cents) / 100.
-        desc = trans[1].strip().replace('\n', '').replace('  ', ' ')
+        desc = trans[1].strip().replace('\n', '').replace('  ', ' ').replace('\r', '')
         results.append( 
             MT940Payment(**dict(dc=dc, date=d, amount=amount, desc=desc,
-                raw=''.join(trans))))
+                raw=''.join(trans).replace('\r', ''))))
     return results
 
 from member_strings import ID_STRINGS
@@ -82,7 +82,8 @@ if __name__ == '__main__':
         if x.dc == 'D':
             pass
         if x._hash in rej:
-            print 'Hash (%s) found in previous hashes file; ignoring' % x._hash
+            # TODO: Can't just "print".
+            print >>sys.stderr, 'Hash (%s) found in previous hashes file; ignoring' % x._hash
             continue
 
         n = identify_member(x)
