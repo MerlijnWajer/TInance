@@ -158,11 +158,11 @@ The JSON format contains the following entries:
 An example: ::
 
     {
-        "hash": "b717ec481b3a84f1faa36c3344af2f70348b84ebd8ef1e471786c4100fa70e6c", 
-        "months": 1, 
-        "nick": "wizzup", 
-        "amount": 42.0, 
-        "date": "2014-01-02", 
+        "hash": "b717ec481b3a84f1faa36c3344af2f70348b84ebd8ef1e471786c4100fa70e6c",
+        "months": 1,
+        "nick": "wizzup",
+        "amount": 42.0,
+        "date": "2014-01-02",
         "desc": "/TRTP/SEPA OVERBOEKING/IBAN/NL28TRIO0XXXXXXXXX/BIC/TRIONL2U/NAME/M.B.W. WAJER/REMI/MEMBERSHIP WIZZUP/EREF/TRIODOS/NL/20140101/13XXXXXX"
     }
 
