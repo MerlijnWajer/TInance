@@ -1,13 +1,9 @@
-Short term TODO:
-* Add payments options to the ti.py frontend.
-* Add MT940 hashes to the database
-* Add a few other fields to the database for a member; stuff that helps to
-  identify them.
-* Have the treasury/parser spit out shell commands that use ti.py, as
-  intermediate step after parsing. Workflow could then be like:
-
-  python parse.py MT940XXXXXXX -o xxxxx.sh # Interactive
-  $EDITOR xxxxx.sh # Inspect again, fix if needed
-  bash xxxxx.sh # Run line per line, executing ti.py with treasury frontend
-
-
+TODO:
+* Write more documentation
+* Complete payments options to the ti.py frontend.
+* Add fobid as option when creating a member
+* Clean up code to create an overview, per member, for what months they have
+  paid (and implicity, until when)
+* Work on better graph output for monthly / yearly reports and forecasts
+* Re-work graph code
+* Add "payment_per_month" field if deemed necessary.
