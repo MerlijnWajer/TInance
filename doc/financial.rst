@@ -153,7 +153,7 @@ Or, in a more parseable format::
 
 Or, to list their payments as well (doesn't parse nicely)::
 
-    for nick in $(python ti.py --format "%n" --search --nick "%z%" --restrict overdue --active-only);
+    for nick in $(python ti.py --format "%n" --search --nick "%" --restrict overdue --active-only);
     do
         python ti.py --format "Joined: %j, Paid until: %p, Name: %N, Email: %m" --search --nick "$nick" --restrict overdue --active-only 2>/dev/null ;
         python ti.py --search --nick "$nick" --payment 2>/dev/null ;
