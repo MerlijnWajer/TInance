@@ -72,7 +72,7 @@ def members_paying_f(f):
 
     return len(r), filter(lambda _:f(_[2]), r)
 
-def members_query(nick=None, name=None, email=None, active=None):
+def members_query(nick=None, name=None, email=None, active=None, fobid=None):
     f = lambda _, a: _.like(a)
     q = Session.query(Member)
 
@@ -84,6 +84,8 @@ def members_query(nick=None, name=None, email=None, active=None):
         q = q.filter(f(Member.email, email))
     if active is not None:
         q = q.filter(Member.active == active)
+    if fobid:
+        q = q.filter(f(Member.fobid, fobid))
 
     return q
 
@@ -133,7 +135,7 @@ def members_ontime():
 
 if __name__ == '__main__':
     print 'Member count (active):', member_count()
-    print avg_payment_per_member()
+    print 'Average payment:', avg_payment_per_member()
     tot, mem = members_paying_f(lambda x: x == 20)
     print tot, len(mem)
     #for x in mem:

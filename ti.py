@@ -66,12 +66,13 @@ Member:
 parser.add_argument('-n', '--nick', type=unicode)
 parser.add_argument('-N', '--name', type=unicode)
 parser.add_argument('-e', '--email', type=unicode)
+parser.add_argument('-k', '--fobid', type=unicode)
 parser.add_argument('-A', '--active-only', action='store_true', default=False)
 parser.add_argument('-D', '--inactive-only', action='store_true', default=False)
 parser.add_argument('--activate', action='store_true', default=False)
 parser.add_argument('--deactivate', action='store_true', default=False)
 parser.add_argument('-d', '--date', type=unicode,
-    help='Either a valid format string or "now"')
+        help='Either a valid format string or "now". Default format: %%Y-%%m-%%d')
 parser.add_argument('--dateformat', type=unicode,
     default='%Y-%m-%d')
 
@@ -129,7 +130,8 @@ if args.inactive_only:
 
 if args.activate or args.deactivate:
 
-    q = stats.members_query(args.nick, args.name, args.email, activequery)
+    q = stats.members_query(args.nick, args.name, args.email, activequery,
+            args.fobid)
     for m in q:
         m.active = args.activate and not args.deactivate
         Session.add(m)
@@ -138,7 +140,8 @@ if args.activate or args.deactivate:
 
 elif args.search:
     if args.payment:
-        q = stats.members_query(args.nick, args.name, args.email, activequery)
+        q = stats.members_query(args.nick, args.name, args.email, activequery,
+                args.fobid)
         r = q.all()
 
         for m in r:
@@ -146,7 +149,8 @@ elif args.search:
                 print m.nick, 'Date:', p.date, 'Amount:', p.amount, 'Months:', p.months
 
     else:
-        q = stats.members_query(args.nick, args.name, args.email, activequery)
+        q = stats.members_query(args.nick, args.name, args.email, activequery,
+                args.fobid)
         r = q.all()
 
         for m in r:
