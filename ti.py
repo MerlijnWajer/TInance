@@ -92,6 +92,10 @@ active:    A
 parser.add_argument('-r', '--restrict', default=None,
         help='Possible options: overdue,ontime,all')
 parser.add_argument('-a', '--add', action='store_true', default=False)
+
+# TODO: Implement --modify
+parser.add_argument('-a', '--modify', action='store_true', default=False)
+
 parser.add_argument('-J', '--JSON', action='store_true', default=False)
 
 parser.add_argument('--payment', action='store_true', default=False,
@@ -104,10 +108,12 @@ parser.add_argument('--payment-comment', type=str,
         help='Payment comment: optional')
 parser.add_argument('--payment-hash', type=int,
         help='Payment hash (optional for manual add)')
+parser.add_argument('--payment-id', type=int,
+        help='Payment id')
 
 args = parser.parse_args()
 
-if sum((args.search, args.add, args.deactivate)) > 1:
+if sum((args.search, args.add, args.deactivate, args.activate, args.modify)) > 1:
     print 'Searching, deleting and/or adding at the same time? Sense you no MAKE!'
     parser.print_help()
     sys.exit(1)
@@ -202,3 +208,11 @@ elif args.add:
                 member_date=d, fobid=args.fobid)
         Session.add(m)
         Session.commit()
+
+elif args.modify:
+    if args.payment:
+        pass
+    else:
+        pass
+    # TODO
+    pass

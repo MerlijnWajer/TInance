@@ -74,6 +74,8 @@ Simply running::
 Should give you the main idea on how to use it. The next sections are examples
 of the common commands.
 
+**Anything that is currently not implemented can be done using sqlite3.**
+
 Adding a member to the system
 -----------------------------
 
@@ -123,6 +125,7 @@ Then deactivate::
 
    python ti.py --deactivate --nick wizzup
 
+Activating a member is the same, but use `--activate`.
 
 Looking at payments
 -------------------
@@ -139,6 +142,8 @@ TODO. Will be nothing like::
 
      python ti.py --nick wizzup --add --payment --payment-months 2 --payment-amount 20 --payment-comment hai --date now
 
+Modifying a single payment
+--------------------------
 
 Finding out which members are overdue with their payments
 ---------------------------------------------------------
