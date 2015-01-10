@@ -94,7 +94,7 @@ parser.add_argument('-r', '--restrict', default=None,
 parser.add_argument('-a', '--add', action='store_true', default=False)
 
 # TODO: Implement --modify
-parser.add_argument('-a', '--modify', action='store_true', default=False)
+parser.add_argument('-m', '--modify', action='store_true', default=False)
 
 parser.add_argument('-J', '--JSON', action='store_true', default=False)
 
