@@ -97,13 +97,13 @@ parser.add_argument('-J', '--JSON', action='store_true', default=False)
 parser.add_argument('--payment', action='store_true', default=False,
         help='Enter payment mode')
 parser.add_argument('--payment-months', type=int,
-        help='Amount of months')
+        help='Amount of months: the amount of months the payment is for')
 parser.add_argument('--payment-amount', type=float,
-        help='Payment Amount')
+        help='Payment amount total: not per month, but of the entire payment')
 parser.add_argument('--payment-comment', type=str,
-        help='Payment comment')
+        help='Payment comment: optional')
 parser.add_argument('--payment-hash', type=int,
-        help='Payment hash')
+        help='Payment hash (optional for manual add)')
 
 args = parser.parse_args()
 
@@ -174,16 +174,19 @@ elif args.search:
 
 elif args.add:
     if args.payment:
-        add_args = ['nick', 'payment_amount', 'payment_comment',
-        'payment_months', 'payment_hash', 'date'] # XXX hash optional
+        add_args = ['nick', 'payment_amount', 'payment_months', 'date']
+        #add_args = ['nick', 'payment_amount', 'payment_comment',
+        #'payment_months', 'payment_hash', 'date'] # XXX hash optional
         if not all(map(lambda x: getattr(args, x), add_args)):
             print 'Please provide: ' + ', '.join(add_args)
             parser.print_help()
             sys.exit(1)
-        # TODO
+
+        print map(lambda x: getattr(args, x), add_args)
+        # TODO: Add payment here (also use hash / comment if provided)
 
     else:
-        add_args = ['nick', 'name', 'email', 'date']
+        add_args = ['nick', 'name', 'email', 'date', 'fobid']
         if not all(map(lambda x: getattr(args, x), add_args)):
             print 'Please provide: ' + ', '.join(add_args)
             parser.print_help()
@@ -195,6 +198,7 @@ elif args.add:
         else:
             d = datetime.datetime.strptime(args.date, args.dateformat)
 
-        m = Member(nick=args.nick, name=args.name, email=args.email, member_date=d)
+        m = Member(nick=args.nick, name=args.name, email=args.email,
+                member_date=d, fobid=args.fobid)
         Session.add(m)
         Session.commit()

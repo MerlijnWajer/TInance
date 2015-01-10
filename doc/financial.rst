@@ -67,27 +67,98 @@ In the near future, it will also allow:
   possible with other, external python scripts such as ``stats.py`` and
   ``graphs.py``.
 
-Simply running:
+Simply running::
 
-    **python ti.py --help**
+    python ti.py --help
 
-Should give you the main idea on how to use it.
+Should give you the main idea on how to use it. The next sections are examples
+of the common commands.
 
 Adding a member to the system
 -----------------------------
 
-**TODO**
+Use `scripts/add_member.sh`, or alternatively::
+
+    python ti.py python2 ti.py --add --nick "nick" --name "Name" \
+        --email "Email" --date now --fobid "idhere"
+
+Pick "NaN" if no fob is given out. The date can either be `now` or of
+format YYYY-mm-dd.
+
+Searching for a member
+----------------------
+
+Issue::
+
+    python ti.py --search --nick '%nickhere%'
+
+Alternatively, you can also search by either name, fobid or email::
+
+    python ti.py --search --name '%Merlijn%'
+    python ti.py --search --fobid '%8%'
+
+
+Using --format
+--------------
+
+From the --help::
+
+    Add percentage in front of the type. Allowed types:
+    id: i nick: n name: N mail: m join-date: j paid: p
+    keyid: k active: A
+
+Thus::
+
+    python ti.py --search --nick wizzup -f "ID: %i. FOBID: %k. NAME: %N"
+
+
+Deactivating a member
+---------------------
+
+First, find the member (either by nick, name, email or fobid)::
+
+   python ti.py --search --nick wizzup
+
+Then deactivate::
+
+   python ti.py --deactivate --nick wizzup
+
+
+Looking at payments
+-------------------
+
+To list payments of a member::
+
+    python ti.py --search --nick 'wizzup' --payment
+
+
+Manually adding a single payment
+--------------------------------
+
+TODO. Will be nothing like::
+
+     python ti.py --nick wizzup --add --payment --payment-months 2 --payment-amount 20 --payment-comment hai --date now
+
 
 Finding out which members are overdue with their payments
 ---------------------------------------------------------
 
-Issue the following command:
+Issue the following command::
 
-    python ti.py -f 'Joined: %j, Paid until: %p, Name: %N, Email: %m' -s -n % -r 'overdue'
+    python ti.py --format "Joined: %j, Paid until: %p, Name: %N, Email: %m" --search --nick "%" --restrict overdue --active-only
 
-Or, in a more parseable format:
+Or, in a more parseable format::
 
-    python ti.py -f '%j, %p, %N, %m' -s -n % -r 'overdue'
+    python ti.py --format "%j, %p, %N, %m" --search --nick "%" --restrict overdue --active-only
+
+Or, to list their payments as well (doesn't parse nicely)::
+
+    for nick in $(python ti.py --format "%n" --search --nick "%z%" --restrict overdue --active-only);
+    do
+        python ti.py --format "Joined: %j, Paid until: %p, Name: %N, Email: %m" --search --nick "$nick" --restrict overdue --active-only 2>/dev/null ;
+        python ti.py --search --nick "$nick" --payment 2>/dev/null ;
+    done
+
 
 Bank imports
 ~~~~~~~~~~~~
@@ -103,7 +174,7 @@ MT940 and identification
 MT940 is one of the formats used by banks. Our code is able to parse MT940 bank
 exports - within reason; the MT940 format is quite terrible. We can succesfully
 parse descriptions, amounts and dates. To identify members by the transactions
-we typically require them to add the following to their payment description:
+we typically require them to add the following to their payment description::
 
     MEMBERSHIP: <NICKNAME>
 
@@ -130,7 +201,7 @@ The file mt940/mt940.py can parse MT940 formats. It will also attempt to
 recognise which member made what payment, within reason. It uses a (private)
 members_strings.py file which maps certain payments to members based on simple
 string searches. It will output payments recognised to stdout; whereas unknown
-payments are output to stderr. Usage would be like this:
+payments are output to stderr. Usage would be like this::
 
     $ python mt940.py MT940140331144020.STA  1>accept.json 2>reject.json
 
@@ -140,7 +211,7 @@ The ``reject.json`` file contains the other (not immediately) recognised
 payments, also in JSON format.
 
 Optionally, you can have the mt940.py script ignore certain hashes (where each
-line contains a hash), like so:
+line contains a hash), like so::
 
     $ python mt940.py MT940140331144020.STA file_with_hashes_to_ignore.txt 1>accept.json 2>reject.json
 
@@ -155,7 +226,7 @@ The JSON format contains the following entries:
   this makes it possible to recognise if a payment was already processed, and
   either warn the treasurer or even ignore the payment all together.
 
-An example: ::
+An example::
 
     {
         "hash": "b717ec481b3a84f1faa36c3344af2f70348b84ebd8ef1e471786c4100fa70e6c",
@@ -209,7 +280,7 @@ because they have already been taken care of.
 
 Ignoring transactions previously deemed invalid is a slightly more work, at
 least at this point. It requires you to **save the hashes from all your previous
-(final) ``reject.json`` files.** This can be done as follows:
+(final) ``reject.json`` files.** This can be done as follows::
 
     $ mt940/filter_reject.sh reject.json >> reject_hashes_store
 
@@ -219,20 +290,20 @@ script.**
 
 After which the import tool can be told to read the ``reject_hashes_store`` file
 to discard any transactions that match one of the hashes found in there, with
-the ``-R`` flag, (more on import.py later on the document) like so:
+the ``-R`` flag, (more on import.py later on the document) like so::
 
     $ python import.py -f accept.json -R mt940/reject_hashes_store
 
 Importing accept.json data
 --------------------------
 
-A basic import looks as follows:
+A basic import looks as follows::
 
     $ python import.py -f accept.json
 
 This will process the accept.json file and check for any errors. **Note that is
 does not yet add the payments to the database!**. To actually import the data,
-issue the following command (note the ``-i`` flag):
+issue the following command (note the ``-i`` flag)::
 
     $ python import.py -f accept.json -i
 
@@ -242,12 +313,12 @@ with ``-f`` instead.
 Importing, a recap
 ------------------
 
-First, process the MT940 data:
+First, process the MT940 data::
 
     $ python mt940.py MT940140331144020.STA [reject_hashes_store] 1>accept.json 2>reject.json
 
 Then, manually inspect and modify the ``accept.json``, ``reject.json`` and
-optionally ``todo.json``. Finally, import it to the database:
+optionally ``todo.json``. Finally, import it to the database::
 
     $ python import.py -f accept.json -i
 
