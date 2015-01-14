@@ -1,12 +1,16 @@
+# -*- coding: utf-8 -*-
+from __future__ import print_function
+
 import re
 from datetime import date
 
 import hashlib
 
+
 class MT940Payment(object):
     def __init__(self, **kwargs):
         s = ''
-        for x, y in kwargs.iteritems():
+        for x, y in kwargs.items():
             s += str(y)
             setattr(self, x, y)
         self._hash = str(hashlib.sha256(s).hexdigest())
@@ -49,7 +53,7 @@ from member_strings import ID_STRINGS
 def identify_member(payment):
     p = payment
 
-    for nick, strings in ID_STRINGS.iteritems():
+    for nick, strings in ID_STRINGS.items():
         for string in strings:
             if p.desc.find(string) > 0:
                 return nick
@@ -76,8 +80,6 @@ if __name__ == '__main__':
                 break
 
         member = identify_member(x)
-        if not member:
-            member = 'Unknown'
 
         if iban:
             iban = iban.groups()[0]
@@ -85,12 +87,22 @@ if __name__ == '__main__':
             if iban.endswith('BIC'):
                 iban = iban[0:-3]
 
-        if x.dc == 'C':
+        income_str = 'Members' if member else 'Unknown'
+        income_str = 'Income:' + income_str
+
+        if not member:
+            member = 'Unknown'
+
+        if x.dc == 'D':
             x.amount = -x.amount
 
         print(';' + x.desc)
-        print """%s %s
+        print("""%s %s
     Assets:%s       %s
     %s
-        """ % (x.date, '%s' % (member), 'Main', x.amount, 'Income: Members' \
-                if x.dc == 'C' else 'Expenses: TODO')
+        """ % (x.date,
+                '%s' % member,
+                'Main',
+                '€%s' % x.amount,
+                income_str if x.dc == 'C' else 'Expenses:TODO')
+        )
