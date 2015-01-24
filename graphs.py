@@ -61,36 +61,57 @@ def mocalc(d):
 def members_per_month():
     """ Members added per month; not cummulative """
     s = Session.query(Member).all()
+    sa = Session.query(Member).filter(Member.active==True).all()
     so = sorted(s, key=lambda x: x.member_date)
+    soa = sorted(sa, key=lambda x: x.member_date)
 
     d = [x.member_date for x in so]
-
+    #print(d[0:5])
+    da = [x.member_date for x in soa]
     d = [(_.year - start.year) * 12 + _.month for _ in d]
+    #print(d[0:5])
+    da = [(_.year - start.year) * 12 + _.month for _ in da]
 
     t = set(d)
+    print(t)
 
-    numbers = range(max(t))
+    numbers = range(min(t), max(t))
     labels = map(mocalc, numbers)
+    print(numbers)
+    print(labels)
+    #exit(1)
 
     pylab.xticks(numbers, labels, rotation='vertical')
 
-    n, bins, patches = pylab.hist(d, bins=max(t))
-    pylab.show()
-
+    na, _, _ = pylab.hist(da, bins=max(t) - min(t))
     pylab.clf()
 
-    pylab.xticks(numbers, labels, rotation='vertical')
-    pylab.plot(numbers, n)
-    pylab.show()
+    n, bins, patches = pylab.hist(d, bins=max(t) - min(t))
+    #pylab.show()
 
-    pylab.clf()
+    #pylab.clf()
+
+    #pylab.xticks(numbers, labels, rotation='vertical')
+    pylab.plot(numbers, n, 'g')
+    pylab.plot(numbers, na, 'y')
+    #pylab.show()
+
+    #pylab.clf()
 
     cumn = []
-    for i in xrange(len(n)):
+    for i in xrange(1, len(na) + 1):
+        cumn.append(sum(na[:i]))
+
+    pylab.xticks(numbers, labels, rotation='vertical')
+    pylab.plot(numbers, cumn, 'r')
+
+    cumn = []
+    for i in xrange(1, len(n) + 1):
         cumn.append(sum(n[:i]))
 
     pylab.xticks(numbers, labels, rotation='vertical')
-    pylab.plot(numbers, cumn)
+    pylab.plot(numbers, cumn, 'b')
+
     pylab.show()
     pylab.clf()
 
@@ -154,17 +175,17 @@ def money_per_month():
     pylab.show()
 
 
-money_per_month()
+#money_per_month()
 members_per_month()
 
 #cmpfunc = lambda d1, d2: d1 >= d2 # on time
 #cmpfunc = lambda d1, d2: d1 < d2 # overdue
-cmpfunc = lambda d1, d2: True #all
-
-t = time.localtime()
-due = datetime.date(t.tm_year, t.tm_mon, 1)
-
-s = Session.query(Member).all()
-for m in s:
-    if cmpfunc(m.paid_until(), due) and m.active:
-        print repr(m).decode('utf-8'), len(m.payments), m.email, m.nick
+#cmpfunc = lambda d1, d2: True #all
+#
+#t = time.localtime()
+#due = datetime.date(t.tm_year, t.tm_mon, 1)
+#
+#s = Session.query(Member).all()
+#for m in s:
+#    if cmpfunc(m.paid_until(), due) and m.active:
+#        print repr(m).decode('utf-8'), len(m.payments), m.email, m.nick
