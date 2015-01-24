@@ -67,7 +67,8 @@ parser.add_argument('-n', '--nick', type=unicode)
 parser.add_argument('-N', '--name', type=unicode)
 parser.add_argument('-e', '--email', type=unicode)
 parser.add_argument('-k', '--fobid', type=unicode)
-parser.add_argument('-A', '--active-only', action='store_true', default=False)
+parser.add_argument('--all', action='store_true', default=False)
+parser.add_argument('-A', '--active-only', action='store_true', default=True)
 parser.add_argument('-D', '--inactive-only', action='store_true', default=False)
 parser.add_argument('--activate', action='store_true', default=False)
 parser.add_argument('--deactivate', action='store_true', default=False)
@@ -129,9 +130,9 @@ if args.JSON: # For LDAP
     print json.dumps(members, indent=4)
 
 activequery = None
-if args.active_only:
+if args.active_only and not args.all:
     activequery = True
-if args.inactive_only:
+if args.inactive_only and not args.all:
     activequery = False
 
 if args.activate or args.deactivate:
