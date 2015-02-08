@@ -68,8 +68,12 @@ class Member(Base):
         try:
             d = datetime.date(d.year + y, d.month + m, d.day)
         except ValueError:
-            # XXX, YES, I KNOW
-            d = datetime.date(d.year + y, d.month + m, 30)
+            # XXX, YES, I KNOW. Temp fix.
+            if d.month == 2:
+                d = datetime.date(d.year + y, d.month + m, 30)
+            else:
+                d = datetime.date(d.year + y, d.month + m, 28)
+
         return d
 
     def __repr__(self):
