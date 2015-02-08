@@ -127,4 +127,5 @@ class Payment(Base):
             setattr(self, k, v)
 
     def __repr__(self):
-        return u'Payment (%d, %d, %d, %s)>' % (self.id, self.amount, self.months, self.date)
+        return u'Payment (%d, %d, %d, %s, %s)>' % (self.id, self.amount,
+                self.months, self.date, self.comment[:40])
