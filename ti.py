@@ -107,7 +107,7 @@ parser.add_argument('--payment-amount', type=float,
         help='Payment amount total: not per month, but of the entire payment')
 parser.add_argument('--payment-comment', type=str,
         help='Payment comment: optional')
-parser.add_argument('--payment-hash', type=int,
+parser.add_argument('--payment-hash', type=str,
         help='Payment hash (optional for manual add)')
 parser.add_argument('--payment-id', type=int,
         help='Payment id')
@@ -153,7 +153,8 @@ elif args.search:
 
         for m in r:
             for p in m.payments:
-                print m.nick, 'Date:', p.date, 'Amount:', p.amount, 'Months:', p.months
+                print m.nick, 'Date:', p.date, 'Amount:', p.amount, 'Months:', \
+                    p.months, 'Comment:', p.comment[:40]
 
     else:
         q = stats.members_query(args.nick, args.name, args.email, activequery,
@@ -181,17 +182,29 @@ elif args.search:
 
 elif args.add:
     if args.payment:
-        add_args = ['nick', 'payment_amount', 'payment_months', 'date']
-        #add_args = ['nick', 'payment_amount', 'payment_comment',
-        #'payment_months', 'payment_hash', 'date'] # XXX hash optional
+        add_args = ['nick', 'payment_amount', 'payment_months', 'date',
+        'payment_comment']
         if not all(map(lambda x: getattr(args, x), add_args)):
             print 'Please provide: ' + ', '.join(add_args)
             parser.print_help()
             sys.exit(1)
 
-        print map(lambda x: getattr(args, x), add_args)
-        # TODO: Add payment here (also use hash / comment if provided)
+        amount = args.payment_amount
+        months = args.payment_months
+        comment = args.payment_comment
+        membern = args.nick
+        member = Session.query(Member).filter(Member.nick == membern).first()
+        if member is None:
+            print 'Member not found:', membern
 
+        d = datetime.datetime.strptime(args.date, args.dateformat)
+
+        print(repr(comment))
+        p = Payment(member_id=member.id, date=d, amount=amount, months=months, comment=comment)
+
+        Session.add(p)
+        Session.commit()
+        print('Added:', p)
     else:
         add_args = ['nick', 'name', 'email', 'date', 'fobid']
         if not all(map(lambda x: getattr(args, x), add_args)):
