@@ -136,11 +136,14 @@ if args.inactive_only and not args.all:
     activequery = False
 
 if args.activate or args.deactivate:
-
-    q = stats.members_query(args.nick, args.name, args.email, activequery,
+    q = stats.members_query(args.nick, args.name, args.email, None,
             args.fobid)
     for m in q:
         m.active = args.activate and not args.deactivate
+        if m.active:
+            print m.nick, 'is now activated'
+        else:
+            print m.nick, 'is now deactivated'
         Session.add(m)
 
     Session.commit()
