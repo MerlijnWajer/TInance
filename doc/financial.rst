@@ -198,6 +198,10 @@ treasurer is required to manually verify that the tool did a proper job and
 possible perform a few manual steps to process transactions previously not
 recognised or by definition unrecognisable.
 
+If required, convert it to utf-8::
+
+    recode iso-8859-1..utf-8 MT940140331144020.STA
+
 The file mt940/mt940.py can parse MT940 formats. It will also attempt to
 recognise which member made what payment, within reason. It uses a (private)
 members_strings.py file which maps certain payments to members based on simple
