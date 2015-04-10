@@ -289,15 +289,9 @@ least at this point. It requires you to **save the hashes from all your previous
 
     $ mt940/filter_reject.sh reject.json >> reject_hashes_store
 
-**TODO: Instructions below on the -R flag are to be deprecated in favour of
-filtering hashes earlier; with the mt940.py script rather than the import.py
-script.**
+And for the net import, the **reject_hashes_store** file can be using during the
+`mt940.py` step.
 
-After which the import tool can be told to read the ``reject_hashes_store`` file
-to discard any transactions that match one of the hashes found in there, with
-the ``-R`` flag, (more on import.py later on the document) like so::
-
-    $ python import.py -f accept.json -R mt940/reject_hashes_store
 
 Importing accept.json data
 --------------------------

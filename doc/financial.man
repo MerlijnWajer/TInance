@@ -1,0 +1,536 @@
+.\" Man page generated from reStructuredText.
+.
+.TH TECHINC FINANCIAL ADMINISTRATION  "" "" ""
+.SH NAME
+Techinc Financial administration \- 
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.sp
+We will start by introducing terminology and how the system works. It will later
+on cover manipulating the database using command line tools and automated
+processing of transactions; and finally gathering useful information.
+.sp
+A word of warning, some parts of the guide require access to private files
+(mainly: the database) which are stored in another private location, since we
+will not provide those to the public.
+.SH WHAT THE SYSTEM NEEDS TO DO
+.sp
+The system needs to manage member administration. This entails:
+.INDENT 0.0
+.IP \(bu 2
+Keeping track of who is a member and who is not
+.IP \(bu 2
+Managing payments made by members (Importing data from banks)
+.IP \(bu 2
+Provide reports and statistics of the above
+.IP \(bu 2
+Be easy and fast to manage
+.UNINDENT
+.SH DATABASE
+.sp
+The database contains two tables. One table to store information about members;
+one row per member. This contains basic information such as:
+.INDENT 0.0
+.IP \(bu 2
+Email\-address
+.IP \(bu 2
+Nickname
+.IP \(bu 2
+Full name
+.IP \(bu 2
+Date joined
+.IP \(bu 2
+Entrance\-key ID
+.IP \(bu 2
+Active (or not)
+.UNINDENT
+.sp
+The other table contains the membership payments for the members, each row a
+payment for one or multiple months. Every payment contains, at least:
+.INDENT 0.0
+.IP \(bu 2
+Reference to member
+.IP \(bu 2
+Amount of money paid
+.IP \(bu 2
+Amount of months paid for in this transaction (typically 1)
+.IP \(bu 2
+Date of the transaction
+.IP \(bu 2
+Optional: A hash of the transaction used for identification when importing
+.UNINDENT
+.sp
+The database is SQLite3 and stored in \fBtidb/db.db\fP\&.
+\fBIf the database does not exist yet, it is created by the frontend and will be
+empty; you need to copy the database from the private location.\fP
+.SH COMMAND LINE FRONTEND
+.sp
+The file \fBti.py\fP is the command line frontend to the database and contains
+some powerful search and statistics features. The frontend currently allows one
+to:
+.INDENT 0.0
+.IP \(bu 2
+Add members to the administration database
+.IP \(bu 2
+Activate/Deactivate members
+.IP \(bu 2
+Search for members
+.IP \(bu 2
+Print a report of payments; members who are: overdue or on time.
+.IP \(bu 2
+Perform JSON exports for our LDAP scripts
+.IP \(bu 2
+List payments per member
+.UNINDENT
+.sp
+In the near future, it will also allow:
+.INDENT 0.0
+.IP \(bu 2
+Manually adding a payment
+.IP \(bu 2
+Manually modifing a member and/or payment
+.IP \(bu 2
+Have options to generate graphs and other statistics (this is currently only
+possible with other, external python scripts such as \fBstats.py\fP and
+\fBgraphs.py\fP\&.
+.UNINDENT
+.sp
+Simply running:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+python ti.py \-\-help
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Should give you the main idea on how to use it. The next sections are examples
+of the common commands.
+.sp
+\fBAnything that is currently not implemented can be done using sqlite3.\fP
+.SS Adding a member to the system
+.sp
+Use \fIscripts/add_member.sh\fP, or alternatively:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+python ti.py python2 ti.py \-\-add \-\-nick "nick" \-\-name "Name" \e
+    \-\-email "Email" \-\-date now \-\-fobid "idhere"
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Pick "NaN" if no fob is given out. The date can either be \fInow\fP or of
+format YYYY\-mm\-dd.
+.SS Searching for a member
+.sp
+Issue:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+python ti.py \-\-search \-\-nick \(aq%nickhere%\(aq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Alternatively, you can also search by either name, fobid or email:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+python ti.py \-\-search \-\-name \(aq%Merlijn%\(aq
+python ti.py \-\-search \-\-fobid \(aq%8%\(aq
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS Using \-\-format
+.sp
+From the \-\-help:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Add percentage in front of the type. Allowed types:
+id: i nick: n name: N mail: m join\-date: j paid: p
+keyid: k active: A
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Thus:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+python ti.py \-\-search \-\-nick wizzup \-f "ID: %i. FOBID: %k. NAME: %N"
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS Deactivating a member
+.sp
+First, find the member (either by nick, name, email or fobid):
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+python ti.py \-\-search \-\-nick wizzup
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Then deactivate:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+python ti.py \-\-deactivate \-\-nick wizzup
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Activating a member is the same, but use \fI\-\-activate\fP\&.
+.SS Looking at payments
+.sp
+To list payments of a member:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+python ti.py \-\-search \-\-nick \(aqwizzup\(aq \-\-payment
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS Manually adding a single payment
+.sp
+TODO. Will be nothing like:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+python ti.py \-\-nick wizzup \-\-add \-\-payment \-\-payment\-months 2 \-\-payment\-amount 20 \-\-payment\-comment hai \-\-date now
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS Modifying a single payment
+.SS Finding out which members are overdue with their payments
+.sp
+Issue the following command:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+python ti.py \-\-format "Joined: %j, Paid until: %p, Name: %N, Email: %m" \-\-search \-\-nick "%" \-\-restrict overdue \-\-active\-only
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Or, in a more parseable format:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+python ti.py \-\-format "%j, %p, %N, %m" \-\-search \-\-nick "%" \-\-restrict overdue \-\-active\-only
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Or, to list their payments as well (doesn\(aqt parse nicely):
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+scripts/overdue.sh
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SH BANK IMPORTS
+.sp
+One of the important aspects of the TechInc treasury is semi\-automatically
+processing payments made by members. This way the members will not forget to pay
+for their membership and estimates can be made based on monthly income. This
+document is supposed to aid the treasurer in using the financial system.
+.SS MT940 and identification
+.sp
+MT940 is one of the formats used by banks. Our code is able to parse MT940 bank
+exports \- within reason; the MT940 format is quite terrible. We can succesfully
+parse descriptions, amounts and dates. To identify members by the transactions
+we typically require them to add the following to their payment description:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+MEMBERSHIP: <NICKNAME>
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Checking for names or IBAN identification of a member is not enough; as
+sometimes members will pay on behalf of other members (who cannot do bank
+transfers), in which case just matching on an IBAN account would result in false
+matches. Another case where matching on just IBAN is poor would be when a member
+would pay to TechInc for a reason other than paying for membership. The payment
+description is very important to make your life as TechInc treasurer simple, so
+do ask members to add such a description, and preferrably make their payments
+automated and recurring.
+.SS Parsing
+.sp
+Parsing is done in two steps; the first step is the automated processing and
+converting of the MT940 format to JSON. This step will try to find out which
+transactions are payments by members. Once this automated step is complete, the
+treasurer is required to manually verify that the tool did a proper job and
+possible perform a few manual steps to process transactions previously not
+recognised or by definition unrecognisable.
+.sp
+If required, convert it to utf\-8:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+recode iso\-8859\-1..utf\-8 MT940140331144020.STA
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+The file mt940/mt940.py can parse MT940 formats. It will also attempt to
+recognise which member made what payment, within reason. It uses a (private)
+members_strings.py file which maps certain payments to members based on simple
+string searches. It will output payments recognised to stdout; whereas unknown
+payments are output to stderr. Usage would be like this:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ python mt940.py MT940140331144020.STA  1>accept.json 2>reject.json
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Where \fBaccept.json\fP will now contain all the recognised payments, in
+JSON format.
+The \fBreject.json\fP file contains the other (not immediately) recognised
+payments, also in JSON format.
+.sp
+Optionally, you can have the mt940.py script ignore certain hashes (where each
+line contains a hash), like so:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ python mt940.py MT940140331144020.STA file_with_hashes_to_ignore.txt 1>accept.json 2>reject.json
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+The JSON format contains the following entries:
+.INDENT 0.0
+.IP \(bu 2
+nick: This is the nickname of the member
+.IP \(bu 2
+date: The date of the payment
+.IP \(bu 2
+amount: The amount paid in the transaction
+.IP \(bu 2
+months: The amouth of months that was paid for in one go. This defaults to \(aq1\(aq
+and \fBis to be changed by the treasurer when required\fP\&.
+.IP \(bu 2
+hash: This SHA256\-hash is generated to be able to uniquely identify payments;
+this makes it possible to recognise if a payment was already processed, and
+either warn the treasurer or even ignore the payment all together.
+.UNINDENT
+.sp
+An example:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+{
+    "hash": "b717ec481b3a84f1faa36c3344af2f70348b84ebd8ef1e471786c4100fa70e6c",
+    "months": 1,
+    "nick": "wizzup",
+    "amount": 42.0,
+    "date": "2014\-01\-02",
+    "desc": "/TRTP/SEPA OVERBOEKING/IBAN/NL28TRIO0XXXXXXXXX/BIC/TRIONL2U/NAME/M.B.W. WAJER/REMI/MEMBERSHIP WIZZUP/EREF/TRIODOS/NL/20140101/13XXXXXX"
+}
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.SS The accept and reject files
+.sp
+The accept and reject files contain payments recognised and not recognised,
+respectively. The treasurer is \fBrequired to verify both files\fP; the
+accept file for any months that need changing, and the reject file for any
+transactions that were not recognised but are a membership payment. Once the
+treasurer has identified payments in the reject file that need to processed, the
+is encouraged to add remove the specific part of the JSON from the reject file
+and place them in the accept file.
+.sp
+Optionally, if the treasurer is unsure about certain transactions, he can remove
+them from either (or both) \fBaccept.json\fP and \fBreject.json\fP and place them in
+\fBtodo.json\fP\&. \fBThe todo.json file should not be removed until all the
+transactions in there have been taken care of; either by processing them or
+deeming them irrelevant.\fP
+.sp
+Once this manual labour is done, the end result should be:
+.INDENT 0.0
+.IP \(bu 2
+An \fBaccept.json\fP file which contains all the transactions that are
+membership payments that need to be processed and added to the database.
+.IP \(bu 2
+An \fBreject.json\fP file which contains transactions irrelevant to membership
+payments.
+.IP \(bu 2
+Optionally a \fBtodo.json\fP file \fBor payments that need to be processed at a later time.\fP
+.UNINDENT
+.sp
+I will stress it once more, it is important to NOT remove the \fBtodo.json\fP
+file unless you are sure it can be removed.
+.SS On recognising previous payments
+.sp
+It may very well happen that you process a MT940 file which contains previously
+analysed transactions. Be it transactions that are already\-processed membership
+payments or transactions that were not relevant. The system gives you a way to
+automatically discard both; as they are not relevant \- because they have been
+already processed or were already deemed irrelevant.
+.sp
+Transactions already processed will have their hash available in the database,
+the import tool has the option to discard payments with an existing hash;
+because they have already been taken care of.
+.sp
+Ignoring transactions previously deemed invalid is a slightly more work, at
+least at this point. It requires you to \fBsave the hashes from all your previous
+(final) \(ga\(gareject.json\(ga\(ga files.\fP This can be done as follows:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ mt940/filter_reject.sh reject.json >> reject_hashes_store
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+And for the net import, the \fBreject_hashes_store\fP file can be using during the
+\fImt940.py\fP step.
+.SS Importing accept.json data
+.sp
+A basic import looks as follows:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ python import.py \-f accept.json
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+This will process the accept.json file and check for any errors. \fBNote that is
+does not yet add the payments to the database!\fP\&. To actually import the data,
+issue the following command (note the \fB\-i\fP flag):
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ python import.py \-f accept.json \-i
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+If you have worked on a \fBtodo.json\fP; you can pass \fBtodo.json\fP as argument
+with \fB\-f\fP instead.
+.SS Importing, a recap
+.sp
+First, process the MT940 data:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ python mt940.py MT940140331144020.STA [reject_hashes_store] 1>accept.json 2>reject.json
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Then, manually inspect and modify the \fBaccept.json\fP, \fBreject.json\fP and
+optionally \fBtodo.json\fP\&. Finally, import it to the database:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+$ python import.py \-f accept.json \-i
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.\" Generated by docutils manpage writer.
+.
