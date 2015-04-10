@@ -6,7 +6,7 @@ emp() {
     if [ -z "$1" ]
     then
         echo $2
-        echo "Usage: $cmd nickname username email date"
+        echo "Usage: $cmd nickname username email date fobid"
         exit 1
     fi
 }
