@@ -51,11 +51,14 @@ class Member(Base):
         for k, v in kwargs.iteritems():
             setattr(self, k, v)
 
-    def months_paid(self):
-        return sum(_.months for _ in self.payments)
+    def months_paid(self, payments):
+        return sum(_.months for _ in payments)
 
-    def paid_until(self):
-        p = self.months_paid()
+    def paid_until(self, payments=None):
+        pay = payments if payments is not None else self.payments
+
+        p = self.months_paid(pay)
+
         y = p / 12
         m = p % 12
 

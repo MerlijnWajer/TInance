@@ -101,6 +101,8 @@ parser.add_argument('-J', '--JSON', action='store_true', default=False)
 
 parser.add_argument('--payment', action='store_true', default=False,
         help='Enter payment mode')
+parser.add_argument('--payment-view', action='store_true', default=False,
+        help='Enter payment view mode')
 parser.add_argument('--payment-months', type=int,
         help='Amount of months: the amount of months the payment is for')
 parser.add_argument('--payment-amount', type=float,
@@ -154,10 +156,18 @@ elif args.search:
                 args.fobid)
         r = q.all()
 
-        for m in r:
-            for p in m.payments:
-                print m.nick, 'Date:', p.date, 'Amount:', p.amount, 'Months:', \
-                    p.months, 'Comment:', p.comment[:40]
+        if args.payment_view:
+            for m in r:
+                print('%s\tJoined: %s' % (m.nick, m.member_date))
+                for i, p in enumerate(m.payments):
+                    p_u = m.paid_until(m.payments[:i+1])
+                    print('for {}\t\ton {} A: {:8.2f} M: {:4d} {}'.format(p_u,
+                        p.date, p.amount, p.months, p.comment[:40]))
+        else:
+            for m in r:
+                for p in m.payments:
+                    print m.nick, 'Date:', p.date, 'Amount:', p.amount, 'Months:', \
+                        p.months, 'Comment:', p.comment[:40]
 
     else:
         q = stats.members_query(args.nick, args.name, args.email, activequery,
