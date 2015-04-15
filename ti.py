@@ -159,8 +159,12 @@ elif args.search:
         if args.payment_view:
             for m in r:
                 print('%s\tJoined: %s' % (m.nick, m.member_date))
-                for i, p in enumerate(m.payments):
-                    p_u = m.paid_until(m.payments[:i+1])
+                pay = m.payments
+                pay = sorted(m.payments, key=lambda x: x.date)
+
+                for i, p in enumerate(pay):
+                    p_u = m.paid_until(pay[:i+1])
+
                     print('for {}\t\ton {} A: {:8.2f} M: {:4d} {}'.format(p_u,
                         p.date, p.amount, p.months, p.comment[:40]))
         else:
@@ -207,12 +211,13 @@ elif args.add:
         comment = args.payment_comment
         membern = args.nick
         member = Session.query(Member).filter(Member.nick == membern).first()
+
         if member is None:
-            print 'Member not found:', membern
+            print 'Member not found, please check/mind casing as well:', membern
+            exit(1)
 
         d = datetime.datetime.strptime(args.date, args.dateformat)
 
-        print(repr(comment))
         p = Payment(member_id=member.id, date=d, amount=amount, months=months, comment=comment)
 
         Session.add(p)
@@ -237,6 +242,7 @@ elif args.add:
         Session.commit()
 
 elif args.modify:
+    print 'Not implemented yet'
     if args.payment:
         pass
     else:
