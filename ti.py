@@ -206,18 +206,11 @@ elif args.search:
 
 elif args.add:
     if args.payment:
-        add_args = ['nick', 'payment_months', 'date',
-        'payment_comment']
-        if not all(map(lambda x: getattr(args, x), add_args)):
+        add_args = ['nick', 'payment_months', 'payment_amount', 'date', 'payment_comment']
+        if not all(map(lambda x: getattr(args, x) is not None, add_args)):
             print 'Please provide: ' + ', '.join(add_args)
             parser.print_help()
             sys.exit(1)
-
-        if args.payment_amount is None:
-            print 'Please provide: ' + ', '.join(add_args)
-            parser.print_help()
-            sys.exit(1)
-
 
         amount = args.payment_amount
         months = args.payment_months
@@ -262,3 +255,6 @@ elif args.modify:
         pass
     # TODO
     pass
+else:
+    parser.print_help()
+    sys.exit(1)
