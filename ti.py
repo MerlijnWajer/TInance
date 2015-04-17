@@ -67,18 +67,24 @@ parser.add_argument('-n', '--nick', type=unicode)
 parser.add_argument('-N', '--name', type=unicode)
 parser.add_argument('-e', '--email', type=unicode)
 parser.add_argument('-k', '--fobid', type=unicode)
-parser.add_argument('--all', action='store_true', default=False)
-parser.add_argument('-A', '--active-only', action='store_true', default=True)
-parser.add_argument('-D', '--inactive-only', action='store_true', default=False)
-parser.add_argument('--activate', action='store_true', default=False)
-parser.add_argument('--deactivate', action='store_true', default=False)
+parser.add_argument('--all', action='store_true', default=False,
+        help='Query active and inactive members')
+parser.add_argument('-A', '--active-only', action='store_true', default=True,
+        help='Query only active members (default')
+parser.add_argument('-D', '--inactive-only', action='store_true', default=False,
+        help='Query only inactive members')
+parser.add_argument('--activate', action='store_true', default=False,
+        help='Activate a search match (zero or more members)')
+parser.add_argument('--deactivate', action='store_true', default=False,
+        help='Deactivate a search match (zero or more members)')
 parser.add_argument('-d', '--date', type=unicode,
         help='Either a valid format string or "now". Default format: %%Y-%%m-%%d')
 parser.add_argument('--dateformat', type=unicode,
     default='%Y-%m-%d')
 
 parser.add_argument('-H', '--human', action='store_true', default=False)
-parser.add_argument('-s', '--search', action='store_true', default=False)
+parser.add_argument('-s', '--search', action='store_true', default=False,
+        help='Enter search mode')
 parser.add_argument('-f', '--format', type=str, default='%n %j %p',
     help="""Add percentage in front of the type. Allowed types:
 id:        i
@@ -92,7 +98,8 @@ active:    A
 """)
 parser.add_argument('-r', '--restrict', default=None,
         help='Possible options: overdue,ontime,all')
-parser.add_argument('-a', '--add', action='store_true', default=False)
+parser.add_argument('-a', '--add', action='store_true', default=False,
+        help='Enter add mode')
 
 # TODO: Implement --modify
 parser.add_argument('-m', '--modify', action='store_true', default=False)
@@ -105,7 +112,7 @@ parser.add_argument('--payment-view', action='store_true', default=False,
         help='Enter payment view mode')
 parser.add_argument('--payment-months', type=int,
         help='Amount of months: the amount of months the payment is for')
-parser.add_argument('--payment-amount', type=float,
+parser.add_argument('--payment-amount', type=float, default=None,
         help='Payment amount total: not per month, but of the entire payment')
 parser.add_argument('--payment-comment', type=str,
         help='Payment comment: optional')
@@ -165,7 +172,7 @@ elif args.search:
                 for i, p in enumerate(pay):
                     p_u = m.paid_until(pay[:i+1])
 
-                    print('for {}\t\ton {} A: {:8.2f} M: {:4d} {}'.format(p_u,
+                    print('for {}\t\ton {}\tA:{:6.2f}\tM:{:2d}\t\t {}'.format(p_u,
                         p.date, p.amount, p.months, p.comment[:40]))
         else:
             for m in r:
@@ -199,12 +206,18 @@ elif args.search:
 
 elif args.add:
     if args.payment:
-        add_args = ['nick', 'payment_amount', 'payment_months', 'date',
+        add_args = ['nick', 'payment_months', 'date',
         'payment_comment']
         if not all(map(lambda x: getattr(args, x), add_args)):
             print 'Please provide: ' + ', '.join(add_args)
             parser.print_help()
             sys.exit(1)
+
+        if args.payment_amount is None:
+            print 'Please provide: ' + ', '.join(add_args)
+            parser.print_help()
+            sys.exit(1)
+
 
         amount = args.payment_amount
         months = args.payment_months
