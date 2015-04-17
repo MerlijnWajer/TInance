@@ -62,30 +62,40 @@ Member:
 * List members
 """
 
-
-parser.add_argument('-n', '--nick', type=unicode)
-parser.add_argument('-N', '--name', type=unicode)
-parser.add_argument('-e', '--email', type=unicode)
-parser.add_argument('-k', '--fobid', type=unicode)
-parser.add_argument('--all', action='store_true', default=False,
-        help='Query active and inactive members')
-parser.add_argument('-A', '--active-only', action='store_true', default=True,
-        help='Query only active members (default')
-parser.add_argument('-D', '--inactive-only', action='store_true', default=False,
-        help='Query only inactive members')
-parser.add_argument('--activate', action='store_true', default=False,
-        help='Activate a search match (zero or more members)')
-parser.add_argument('--deactivate', action='store_true', default=False,
-        help='Deactivate a search match (zero or more members)')
 parser.add_argument('-d', '--date', type=unicode,
-        help='Either a valid format string or "now". Default format: %%Y-%%m-%%d')
-parser.add_argument('--dateformat', type=unicode,
-    default='%Y-%m-%d')
+        help='Either a valid format string or "now". Default format:'
+        '%%Y-%%m-%%d. Used when adding a new member - as join date')
+parser.add_argument('-r', '--restrict', default=None,
+        help='Restrict viewing members based on their payment-status. '
+              'Possible options: overdue,ontime,all')
 
-parser.add_argument('-H', '--human', action='store_true', default=False)
-parser.add_argument('-s', '--search', action='store_true', default=False,
-        help='Enter search mode')
-parser.add_argument('-f', '--format', type=str, default='%n %j %p',
+filter_group = parser.add_argument_group('Filtering attributes')
+filter_group.add_argument('-n', '--nick', type=unicode)
+filter_group.add_argument('-N', '--name', type=unicode)
+filter_group.add_argument('-e', '--email', type=unicode)
+filter_group.add_argument('-k', '--fobid', type=unicode)
+
+active_group = parser.add_argument_group('Activity filters and toggles')
+active_group.add_argument('--all', action='store_true', default=False,
+        help='Query active and inactive members')
+active_group.add_argument('-A', '--active-only', action='store_true', default=True,
+        help='Query only active members (default')
+active_group.add_argument('-D', '--inactive-only', action='store_true', default=False,
+        help='Query only inactive members')
+
+active_group.add_argument('--activate', action='store_true', default=False,
+        help='Activate a search match (zero or more members)')
+active_group.add_argument('--deactivate', action='store_true', default=False,
+        help='Deactivate a search match (zero or more members)')
+
+
+
+output_group = parser.add_argument_group('Formatting options')
+
+output_group.add_argument('--dateformat', type=unicode, default='%Y-%m-%d')
+
+output_group.add_argument('-H', '--human', action='store_true', default=False)
+output_group.add_argument('-f', '--format', type=str, default='%n %j %p',
     help="""Add percentage in front of the type. Allowed types:
 id:        i
 nick:      n
@@ -96,29 +106,32 @@ paid:      p
 keyid:     k
 active:    A
 """)
-parser.add_argument('-r', '--restrict', default=None,
-        help='Possible options: overdue,ontime,all')
-parser.add_argument('-a', '--add', action='store_true', default=False,
+
+modes_group = parser.add_argument_group('Modes')
+modes_group.add_argument('-a', '--add', action='store_true', default=False,
         help='Enter add mode')
-
+modes_group.add_argument('-s', '--search', action='store_true', default=False,
+        help='Enter search mode')
 # TODO: Implement --modify
-parser.add_argument('-m', '--modify', action='store_true', default=False)
+modes_group.add_argument('-m', '--modify', action='store_true', default=False)
+modes_group.add_argument('-J', '--JSON', action='store_true', default=False)
 
-parser.add_argument('-J', '--JSON', action='store_true', default=False)
 
-parser.add_argument('--payment', action='store_true', default=False,
-        help='Enter payment mode')
-parser.add_argument('--payment-view', action='store_true', default=False,
+
+payment_group = parser.add_argument_group('Payment options commands')
+payment_group.add_argument('--payment', action='store_true', default=False,
+        help='Enter payment mode; use with --search or --add.')
+payment_group.add_argument('--payment-view', action='store_true', default=False,
         help='Enter payment view mode')
-parser.add_argument('--payment-months', type=int,
+payment_group.add_argument('--payment-months', type=int,
         help='Amount of months: the amount of months the payment is for')
-parser.add_argument('--payment-amount', type=float, default=None,
+payment_group.add_argument('--payment-amount', type=float, default=None,
         help='Payment amount total: not per month, but of the entire payment')
-parser.add_argument('--payment-comment', type=str,
+payment_group.add_argument('--payment-comment', type=str,
         help='Payment comment: optional')
-parser.add_argument('--payment-hash', type=str,
+payment_group.add_argument('--payment-hash', type=str,
         help='Payment hash (optional for manual add)')
-parser.add_argument('--payment-id', type=int,
+payment_group.add_argument('--payment-id', type=int,
         help='Payment id')
 
 args = parser.parse_args()
