@@ -17,7 +17,7 @@ emp "$3" "Please provide an email"
 emp "$4" "Please provide a data"
 emp "$4" "Please provide a fobid (NaN is no fob)"
 
-python2 ti.py --add --nick "$1" --name "$2" --email "$3" --date "$4" \
+./ti --add --nick "$1" --name "$2" --email "$3" --date "$4" \
     --fobid "$5"
 
 if [ $? -eq 0 ]
