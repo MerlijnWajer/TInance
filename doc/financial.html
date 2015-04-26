@@ -463,13 +463,14 @@ python ti.py --deactivate --nick wizzup
 <pre class="literal-block">
 python ti.py --search --nick 'wizzup' --payment
 </pre>
+<p>A nicer and more clear overview:</p>
+<pre class="literal-block">
+python ti.py --search --nick 'wizzup' --payment --payment-view
+</pre>
 </div>
 <div class="section" id="manually-adding-a-single-payment">
 <h2>Manually adding a single payment</h2>
-<p>TODO. Will be nothing like:</p>
-<pre class="literal-block">
-python ti.py --nick wizzup --add --payment --payment-months 2 --payment-amount 20 --payment-comment hai --date now
-</pre>
+<p>Use <cite>scripts/add_payment.sh</cite></p>
 </div>
 <div class="section" id="modifying-a-single-payment">
 <h2>Modifying a single payment</h2>
@@ -511,8 +512,8 @@ transfers), in which case just matching on an IBAN account would result in false
 matches. Another case where matching on just IBAN is poor would be when a member
 would pay to TechInc for a reason other than paying for membership. The payment
 description is very important to make your life as TechInc treasurer simple, so
-do ask members to add such a description, and preferrably make their payments
-automated and recurring.</p>
+do ask members to add such a description, and preferrably make their payments</p>
+<p>automated and recurring.</p>
 </div>
 <div class="section" id="parsing">
 <h2>Parsing</h2>
@@ -636,6 +637,63 @@ optionally <tt class="docutils literal">todo.json</tt>. Finally, import it to th
 <pre class="literal-block">
 $ python import.py -f accept.json -i
 </pre>
+</div>
+</div>
+<div class="section" id="ledger">
+<h1>Ledger</h1>
+<p>TODO: Cover how to add to ledger, how to use ledger, discuss how we will store
+ledger info (in the future?)</p>
+<p>Ledger is used for our &quot;double bookkeeping&quot;, it is a command line tool that
+reads plain-text files that contain entries in a certain format.</p>
+<p>Ledger is used for yearly financial reports mostly, and it does <em>NOT</em> use our
+database, it has its own plain-text databases. They are seperate systems
+entirely, and that is on purpose. Ledger needs to match out bank statements with
+a 100% accuracy, with the addition that it contains extra information, such as
+if a transaction is an expense, in what category it is an expense (rent, food),
+etc.</p>
+<div class="section" id="using-ledger">
+<h2>Using Ledger</h2>
+<p>TODO:</p>
+<ul class="simple">
+<li>Discuss how we will use ledger in the future.</li>
+<li>Touch on how stupid ledger deals with periods</li>
+<li>Monthly balance</li>
+<li>Print all events from certain period</li>
+<li>Yearly balance</li>
+</ul>
+<p>Suggestion on how we can use ledger:</p>
+<pre class="literal-block">
+At the end of the month, get the MT940 for the entire month, and turn it
+into Ledger format, manually edit as necessary.
+
+Store in:
+
+ledger_data/&lt;year&gt;/&lt;month in digits, prefix with 0 if required&gt;
+
+Then we can get information for the entire year with simply:
+
+    cat ledger_data/2014/* &gt; ledger_2014
+
+And use that information in our reports.
+</pre>
+</div>
+<div class="section" id="ledger-database-format">
+<h2>Ledger 'database' format</h2>
+<p>TODO</p>
+</div>
+<div class="section" id="converting-mt940-to-ledger">
+<h2>Converting MT940 to Ledger</h2>
+<p>I wrote a tool to automatically convert MT940 payments to Ledger format; because
+you really do not want to add every single payment by hand. Since our system is
+capable of recognising members from payments, we can automate a great deal. The
+only transactions that need manual editing are the ones that are not
+member-payments, which typically amounts to about 5 human interactions per
+month.</p>
+<p>For this purpose, the tool <cite>mt940/mt940-ledger.py</cite> can be used to read a MT940
+file and write ledger-like text to stdout. One can then write the output to a
+file, inspect it, and finalise it.</p>
+<p>Depending on your use case, I suggest you either take a MT940 of an entire year,
+or just of an entire month.</p>
 </div>
 </div>
 </div>

@@ -45,6 +45,7 @@ The database is SQLite3 and stored in ``tidb/db.db``.
 **If the database does not exist yet, it is created by the frontend and will be
 empty; you need to copy the database from the private location.**
 
+
 Command line frontend
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -76,6 +77,7 @@ of the common commands.
 
 **Anything that is currently not implemented can be done using sqlite3.**
 
+
 Adding a member to the system
 -----------------------------
 
@@ -86,6 +88,7 @@ Use `scripts/add_member.sh`, or alternatively::
 
 Pick "NaN" if no fob is given out. The date can either be `now` or of
 format YYYY-mm-dd.
+
 
 Searching for a member
 ----------------------
@@ -127,6 +130,7 @@ Then deactivate::
 
 Activating a member is the same, but use `--activate`.
 
+
 Looking at payments
 -------------------
 
@@ -134,16 +138,21 @@ To list payments of a member::
 
     python ti.py --search --nick 'wizzup' --payment
 
+A nicer and more clear overview::
+
+    python ti.py --search --nick 'wizzup' --payment --payment-view
+
 
 Manually adding a single payment
 --------------------------------
 
-TODO. Will be nothing like::
+Use `scripts/add_payment.sh`
 
-     python ti.py --nick wizzup --add --payment --payment-months 2 --payment-amount 20 --payment-comment hai --date now
 
 Modifying a single payment
 --------------------------
+
+
 
 Finding out which members are overdue with their payments
 ---------------------------------------------------------
@@ -169,6 +178,7 @@ processing payments made by members. This way the members will not forget to pay
 for their membership and estimates can be made based on monthly income. This
 document is supposed to aid the treasurer in using the financial system.
 
+
 MT940 and identification
 ------------------------
 
@@ -186,7 +196,9 @@ matches. Another case where matching on just IBAN is poor would be when a member
 would pay to TechInc for a reason other than paying for membership. The payment
 description is very important to make your life as TechInc treasurer simple, so
 do ask members to add such a description, and preferrably make their payments
+
 automated and recurring.
+
 
 Parsing
 -------
@@ -242,6 +254,7 @@ An example::
         "desc": "/TRTP/SEPA OVERBOEKING/IBAN/NL28TRIO0XXXXXXXXX/BIC/TRIONL2U/NAME/M.B.W. WAJER/REMI/MEMBERSHIP WIZZUP/EREF/TRIODOS/NL/20140101/13XXXXXX"
     }
 
+
 The accept and reject files
 ```````````````````````````
 
@@ -269,6 +282,7 @@ Once this manual labour is done, the end result should be:
 
 I will stress it once more, it is important to NOT remove the ``todo.json``
 file unless you are sure it can be removed.
+
 
 On recognising previous payments
 ````````````````````````````````
@@ -309,6 +323,7 @@ issue the following command (note the ``-i`` flag)::
 If you have worked on a ``todo.json``; you can pass ``todo.json`` as argument
 with ``-f`` instead.
 
+
 Importing, a recap
 ------------------
 
@@ -321,3 +336,72 @@ optionally ``todo.json``. Finally, import it to the database::
 
     $ python import.py -f accept.json -i
 
+
+Ledger
+~~~~~~
+
+TODO: Cover how to add to ledger, how to use ledger, discuss how we will store
+ledger info (in the future?)
+
+Ledger is used for our "double bookkeeping", it is a command line tool that
+reads plain-text files that contain entries in a certain format.
+
+Ledger is used for yearly financial reports mostly, and it does *NOT* use our
+database, it has its own plain-text databases. They are seperate systems
+entirely, and that is on purpose. Ledger needs to match out bank statements with
+a 100% accuracy, with the addition that it contains extra information, such as
+if a transaction is an expense, in what category it is an expense (rent, food),
+etc.
+
+
+Using Ledger
+------------
+
+
+TODO:
+
+* Discuss how we will use ledger in the future.
+* Touch on how stupid ledger deals with periods
+* Monthly balance
+* Print all events from certain period
+* Yearly balance
+
+
+Suggestion on how we can use ledger::
+
+    At the end of the month, get the MT940 for the entire month, and turn it
+    into Ledger format, manually edit as necessary.
+
+    Store in:
+
+    ledger_data/<year>/<month in digits, prefix with 0 if required>
+
+    Then we can get information for the entire year with simply:
+    
+        cat ledger_data/2014/* > ledger_2014
+
+    And use that information in our reports.
+    
+
+Ledger 'database' format
+------------------------
+
+TODO
+
+
+Converting MT940 to Ledger
+--------------------------
+
+I wrote a tool to automatically convert MT940 payments to Ledger format; because
+you really do not want to add every single payment by hand. Since our system is
+capable of recognising members from payments, we can automate a great deal. The
+only transactions that need manual editing are the ones that are not
+member-payments, which typically amounts to about 5 human interactions per
+month.
+
+For this purpose, the tool `mt940/mt940-ledger.py` can be used to read a MT940
+file and write ledger-like text to stdout. One can then write the output to a
+file, inspect it, and finalise it.
+
+Depending on your use case, I suggest you either take a MT940 of an entire year,
+or just of an entire month.
