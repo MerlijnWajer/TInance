@@ -81,7 +81,16 @@
         \addtocounter{months}{1000 * \real{##2}}%
         \unitrow{##1}{##2}{##3}{month}%
     }
+
+    % XXX: This 'counting is wrong, but we don't care atm. Merlijn Wajer:
+    % 2014/12/08
+    \newcommand*{\yearrow}[3]{%
+        \addtocounter{months}{1000 * \real{##2}}%
+        \unitrow{##1}{##2}{##3}{year}%
+    }
+
     \renewcommand{\tabcolsep}{0.8ex}
+
     \setlength\LTleft{0pt}
     \setlength\LTright{0pt}
     \begin{longtable}{@{\extracolsep{\fill}\hspace{\tabcolsep}} l r r r }

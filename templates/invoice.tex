@@ -1,0 +1,66 @@
+%----------------------------------------------------------------------------------------
+%	DOCUMENT CONFIGURATION
+%----------------------------------------------------------------------------------------
+
+\documentclass{invoice} % Use the custom invoice class (invoice.cls)
+\usepackage{graphicx}
+
+\def \tab {\hspace*{3ex}} % Define \tab to create some horizontal white space
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+%	HEADING SECTION
+%----------------------------------------------------------------------------------------
+
+\hfil{\Large\bf Technologia Incognita}\hfil % Company providing the invoice
+\bigskip\break % Whitespace
+\hrule % Horizontal line
+
+\vspace{-10em}
+\hspace{-2em}
+\includegraphics[scale=0.6]{techinc.png}
+\hspace{25em}
+\includegraphics[scale=0.6]{techinc.png}
+\hspace{-23em}
+Louwesweg 1 \\ %\hfill Phone number 0123 \\
+Amsterdam, Noord Holland\hfill treasurer@techinc.nl \\
+KvK Number \hfill 54127319 \\
+BTW Number \hfill 8511.77.542  \\
+Bank Account (IBAN) \hfill NL11ABNA0514978309 \\
+Invoice Number \hfill ((( invoice_number )))
+\\ \\
+{\bf Invoice To:} \\
+% Variables
+\tab ((( name ))) \\
+{%- if company_name %}
+\tab ((( company_name )))\\
+{%- endif -%}
+\tab ((( address ))) \\
+\tab ((( postal_code ))) ((( city )))
+
+{\bf Date:} \\
+\tab \today \\
+
+\begin{invoiceTable}
+
+%feetype: Membership or Various
+\feetype{((( fee_type )))}
+
+{% for fee in fees %}
+{%- if fee.type == 'month' %}
+\monthrow{((( fee.desc )))}{((( fee.amount )))}{((( fee.price_per )))}
+{%- endif -%}
+{%- if fee.type == 'year' %}
+\yearrow{((( fee.desc )))}{((( fee.amount )))}{((( fee.price_per )))}
+{%- endif -%}
+{%- if fee.type == 'various' %}
+\unitrow{((( fee.date )))}{((( fee.amount )))}{((( fee.price_per )))}{((( fee.desc)))}
+{%- endif -%}
+{% endfor %}
+
+\end{invoiceTable}
+
+%----------------------------------------------------------------------------------------
+
+\end{document}

@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+from sys import stdin, stdout
+from yaml import load
+from jinja2 import Environment, PackageLoader
+
+if __name__ == '__main__':
+    # TODO: 'sys' as modulename
+    jinjaenv = Environment(loader=PackageLoader('sys', 'templates'))
+    jinjaenv.variable_start_string = '((('
+    jinjaenv.variable_end_string = ')))'
+
+    templ = jinjaenv.get_template('invoice.tex')
+
+    info = load(stdin.read())
+
+    #from pprint import pprint
+    #pprint(info)
+
+    s = templ.render(info)
+
+    stdout.write(s)

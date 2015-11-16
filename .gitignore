@@ -3,3 +3,5 @@ member_strings.py
 *.json
 *.STA
 *.tar*
+*.pdf
+*.tex

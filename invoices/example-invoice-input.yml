@@ -1,0 +1,29 @@
+# **All fields with fixed values are lowercase**
+invoice_number: 15                          # YOU *MUST* increment this for
+                                            # each invoice
+                                            # Currently you have to do this
+                                            # *MANUALLY*
+
+name: First and last name here              # Required
+company_name: Optionally a company          # This can be omitted entirely
+address: This is the line for the street    # Required
+postal_code: 1337HH                         # Required
+city: Amsterdam                             # Required
+fee_type: Membership                        # OR(Membership, Various)
+
+fees:
+    - type: month                           # OR(month, year, various)
+      desc: January 2014 - December 2014    # Free text
+      amount: 12                            # > 0
+      price_per: 25                         # > 0
+
+    - type: year
+      desc: 2014
+      amount: 1
+      price_per: 300
+
+    - type: various
+      desc: Renting of the space for 10 hours
+      date: 2015-10-20
+      amount: 1
+      price_per: 300
