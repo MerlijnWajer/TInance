@@ -1,5 +1,7 @@
 #!/usr/bin/env python2
 # encoding: utf-8
+from __future__ import print_function
+
 """
 This file is part of the TechInc Financial Administration
 Copyright (c) 2014 by Merlijn Wajer
@@ -21,8 +23,6 @@ See the file COPYING, included in this distribution,
 for details about the copyright.
 """
 
-
-
 import os, sys, argparse, re
 import datetime, time
 
@@ -34,7 +34,7 @@ import stats
 NAME = 'Technologia Incognita'
 
 def pretty_print(m, form, human):
-    print m.format(form, human_read=human).encode('utf-8')
+    print(m.format(form, human_read=human).encode('utf-8'))
 
 parser = argparse.ArgumentParser(description='%s administration tool' % NAME,
         epilog='') # TODO funny epilog
@@ -93,6 +93,7 @@ active_group.add_argument('--deactivate', action='store_true', default=False,
 output_group = parser.add_argument_group('Formatting options')
 
 output_group.add_argument('--dateformat', type=unicode, default='%Y-%m-%d')
+output_group.add_argument('-w', '--wide', action='store_true', default=False)
 
 output_group.add_argument('-H', '--human', action='store_true', default=False)
 output_group.add_argument('-f', '--format', type=str, default='%n %j %p',
@@ -113,7 +114,8 @@ modes_group.add_argument('-a', '--add', action='store_true', default=False,
 modes_group.add_argument('-s', '--search', action='store_true', default=False,
         help='Enter search mode')
 # TODO: Implement --modify
-modes_group.add_argument('-m', '--modify', action='store_true', default=False)
+modes_group.add_argument('-m', '--modify-nick', type=str, default=None,
+        help='Enter modify mode for nickname')
 modes_group.add_argument('-J', '--JSON', action='store_true', default=False)
 
 
@@ -136,8 +138,10 @@ payment_group.add_argument('--payment-id', type=int,
 
 args = parser.parse_args()
 
-if sum((args.search, args.add, args.deactivate, args.activate, args.modify)) > 1:
-    print 'Searching, deleting and/or adding at the same time? Sense you no MAKE!'
+if sum((args.search, args.add, args.deactivate, args.activate, \
+       bool(args.modify_nick))) > 1:
+    print('Searching, deleting and/or adding at the same time?'
+          'Sense you no MAKE!')
     parser.print_help()
     sys.exit(1)
 
@@ -149,7 +153,7 @@ if args.JSON: # For LDAP
     for x in q:
         members.append({"nickname":x.nick, "email":x.email})
 
-    print json.dumps(members, indent=4)
+    print(json.dumps(members, indent=4))
 
 activequery = None
 if args.active_only and not args.all:
@@ -163,9 +167,9 @@ if args.activate or args.deactivate:
     for m in q:
         m.active = args.activate and not args.deactivate
         if m.active:
-            print m.nick, 'is now activated'
+            print(m.nick, 'is now activated')
         else:
-            print m.nick, 'is now deactivated'
+            print(m.nick, 'is now deactivated')
         Session.add(m)
 
     Session.commit()
@@ -182,16 +186,19 @@ elif args.search:
                 pay = m.payments
                 pay = sorted(m.payments, key=lambda x: x.date)
 
+                print('{}\t\t{}\t\t{}\t\t{}\t\t{}'.\
+                    format('Paid Until', 'Paid on', 'Amount', 'Months', 'Comment'))
+
                 for i, p in enumerate(pay):
                     p_u = m.paid_until(pay[:i+1])
 
                     print('for {}\t\ton {}\tA:{:6.2f}\tM:{:2d}\t\t {}'.format(p_u,
-                        p.date, p.amount, p.months, p.comment[:40]))
+                        p.date, p.amount, p.months, p.comment if args.wide else p.comment[:40]))
         else:
             for m in r:
                 for p in m.payments:
-                    print m.nick, 'Date:', p.date, 'Amount:', p.amount, 'Months:', \
-                        p.months, 'Comment:', p.comment[:40]
+                    print(m.nick, 'Date:', p.date, 'Amount:', p.amount, 'Months:', \
+                        p.months, 'Comment:', p.comment if args.wide else p.comment[:40])
 
     else:
         q = stats.members_query(args.nick, args.name, args.email, activequery,
@@ -207,7 +214,7 @@ elif args.search:
                         'all'    : None
                     }[args.restrict]
                 except KeyError:
-                    print 'Invalid restrict:', args.restrict
+                    print('Invalid restrict:', args.restrict)
                     parser.print_help()
                     sys.exit(1)
 
@@ -221,7 +228,7 @@ elif args.add:
     if args.payment:
         add_args = ['nick', 'payment_months', 'payment_amount', 'date', 'payment_comment']
         if not all(map(lambda x: getattr(args, x) is not None, add_args)):
-            print 'Please provide: ' + ', '.join(add_args)
+            print('Please provide: ' + ', '.join(add_args))
             parser.print_help()
             sys.exit(1)
 
@@ -232,7 +239,8 @@ elif args.add:
         member = Session.query(Member).filter(Member.nick == membern).first()
 
         if member is None:
-            print 'Member not found, please check/mind casing as well:', membern
+            print('Member not found, please check/mind '
+                  'casing as well:', membern)
             exit(1)
 
         d = datetime.datetime.strptime(args.date, args.dateformat)
@@ -245,7 +253,7 @@ elif args.add:
     else:
         add_args = ['nick', 'name', 'email', 'date', 'fobid']
         if not all(map(lambda x: getattr(args, x), add_args)):
-            print 'Please provide: ' + ', '.join(add_args)
+            print('Please provide: ' + ', '.join(add_args))
             parser.print_help()
             sys.exit(1)
 
@@ -260,14 +268,44 @@ elif args.add:
         Session.add(m)
         Session.commit()
 
-elif args.modify:
-    print 'Not implemented yet'
+elif args.modify_nick:
+    modify = args.modify_nick
+    print('Going to modify', modify)
+
     if args.payment:
-        pass
+        print('Not implemented yet')
     else:
-        pass
-    # TODO
-    pass
+        m = Session.query(Member).filter(Member.nick == modify).first()
+
+        if m is None:
+            print('Cannot find member', modify)
+            sys.exit(1)
+
+        mod_args = ['nick', 'name', 'email', 'fobid']
+
+        if not any(map(lambda x: getattr(args, x), mod_args)):
+            print('Please provide any of:', mod_args)
+
+        for x in mod_args:
+            if getattr(args, x):
+                print(x, getattr(args, x))
+                setattr(m, x, getattr(args, x))
+
+        d = ''
+        if args.date is not None:
+            if args.date == 'now':
+                d = datetime.date.today()
+            else:
+                d = datetime.datetime.strptime(args.date, args.dateformat)
+            print(d)
+
+            m.date = d
+
+        Session.add(m)
+        Session.commit()
+
+        print('Succesfully modified user', modify)
+
 else:
     parser.print_help()
     sys.exit(1)

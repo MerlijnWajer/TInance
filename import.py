@@ -96,3 +96,5 @@ for p in payments:
 
 if args.really_import:
     Session.commit()
+else:
+    print('SIMULATE MODE: To actually import, use -i')
