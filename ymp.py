@@ -11,8 +11,13 @@ dateformat = '%Y-%m-%d'
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--cutoff', type=unicode, default=None, help='Format is YYYY-MM-DD. Day is ignored.')
-parser.add_argument('--current', type=unicode, default=None, help='Format is YYYY-MM-DD. Day is ignored.')
+parser.add_argument('--cutoff', type=unicode, default=None,
+                    help='Cut off (ignore) payments after a certain date.\n'
+                         'Format is YYYY-MM-DD. Day is ignored.\n'
+                         'By default cutoff is equal to current')
+parser.add_argument('--current', type=unicode, default=None,
+                    help='Define for what month we want to know the YMP.\n'
+                          'Format is YYYY-MM-DD. Day is ignored.')
 parser.add_argument('-v', '--verbose', action='store_true', default=False)
 
 args = parser.parse_args()
@@ -27,7 +32,10 @@ else:
     current = date(fuckoff.year, fuckoff.month, 7)
 
 if args.cutoff is None:
-    limit = date(3000, 1, 1)
+    # TODO: By default it makes sense to not count any payments made after
+    # the date we want to know the YMP for.
+    limit = current
+    #limit = date(3000, 1, 1)
 else:
     fuckoff = datetime.strptime(args.cutoff, dateformat)
     limit = date(fuckoff.year, fuckoff.month, 7)
@@ -93,4 +101,4 @@ def money_per_month():
 
 
 ymp = money_per_month()
-print('YMP=', ymp)
+print('YMP', ymp)
